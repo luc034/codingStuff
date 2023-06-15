@@ -225,6 +225,8 @@ SELECT TO_CHAR (
            + FLOOR (DBMS_RANDOM.VALUE (0, 1) * 19 * 60 * 60) * INTERVAL '1' SECOND,
            'MM/DD/YYYY HH:MI:SSPM')    AS Random_time
   FROM DUAL;
+--CHR(TRUNC(dbms_random.value(65,122)))  -- A..z
+--|| CHR(TRUNC(dbms_random.value(49,57)))  -- 1..9
 
 -- cool procedures that are useful for stuff
 
@@ -344,8 +346,42 @@ SELECT TO_CHAR (
         RETURN v_ordinal;
     END get_ordinal_number;
     
+    FUNCTION is_weekend (p_date DATE)
+        RETURN BOOLEAN
+    IS
+        -- sets date incase no changes are needed it will still be the same date
+        is_day_off   BOOLEAN := FALSE;
+--        v_day        NUMBER := TO_CHAR (p_date, 'DD');
+--        v_month      NUMBER := TO_CHAR (p_date, 'MM');
+    BEGIN
+            IF TO_CHAR (p_date, 'D') = 7
+            THEN
+                is_day_off := TRUE;
+            ELSIF TO_CHAR (p_date, 'D') = 1
+            THEN
+                is_day_off := TRUE;
+            END IF;
+
+            RETURN is_day_off;
+    END is_holiday_and_weekend;
     
-    
+    FUNCTION is_weekday (p_date DATE)
+        RETURN BOOLEAN
+    IS
+        -- sets date incase no changes are needed it will still be the same date
+        is_day_off   BOOLEAN := FALSE;
+--        v_day        NUMBER := TO_CHAR (p_date, 'DD');
+--        v_month      NUMBER := TO_CHAR (p_date, 'MM');
+    BEGIN
+            IF TO_CHAR (p_date, 'D') IN (2,3,4,5,6)
+            THEN
+                is_day_off := TRUE;
+            ELSE
+                is_day_off := FALSE;
+            END IF;
+
+            RETURN is_day_off;
+    END is_holiday_and_weekend;
     -- create own lists
 
 WITH
