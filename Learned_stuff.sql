@@ -118,10 +118,10 @@ END;
 -- listagg example
 BEGIN
 select DISTINCT (SELECT LISTAGG (COLUMN, '; ') WITHIN GROUP (ORDER BY COLUMN)    "COLUMN" 
-                 FROM TABLE 
+                 FROM THE_TABLE 
                  WHERE COLUMN = COLUMN)     AS COLUMN_NAME,
 COLUMN
-from TABLE
+from THE_TABLE;
 END;
 
 -- matrix
@@ -156,7 +156,7 @@ BEGIN
     DBMS_OUTPUT.NEW_LINE;
   END LOOP;
 END;
-/
+
 
 --num := MOD(113,100);
 --dbms_output.put_line(num);
@@ -206,16 +206,15 @@ begin
   end loop loopblk;
   dbms_output.put_line ('Ending, here are the messages' || chr(10) || msg);
 end begin_end_block;
-/
 
-  SELECT column,
+SELECT the_column,
          COUNT (*)                                               total,
          AVG (elapsed_time)                                      avgelap,
          AVG (elapsed_time) * COUNT (*)                          weight,
-         SUM (DECODE (column,  'D', 1,  'C', 1,  0))     dynamic_views,
-         SUM (DECODE (column,  'D', 0,  'C', 0,  1))     cached_views
-    FROM table
-GROUP BY column;
+         SUM (DECODE (the_column,  'D', 1,  'C', 1,  0))     dynamic_views,
+         SUM (DECODE (the_column,  'D', 0,  'C', 0,  1))     cached_views
+    FROM the_table
+GROUP BY the_column;
 
 -- how to work time
 
@@ -330,6 +329,80 @@ SELECT TO_CHAR (
         RETURN num_to_word;
     END;
 
+FUNCTION number_to_word_adverb (p_num INTEGER)
+        RETURN VARCHAR2
+    IS
+        -- declare variable are num, num_to_word, str, len, c
+        -- and in above declare variable num, len, c are integer datatype
+        -- and num_to_word and str are varchar datatype
+        num           INTEGER := p_num;
+        num_to_word   VARCHAR2 (100);
+        str           VARCHAR2 (100);
+        len           INTEGER;
+        c             INTEGER;
+    BEGIN
+        -- length of number
+        len := LENGTH (num);
+
+        -- loop to go through each number
+        FOR i IN 1 .. len
+        LOOP
+            c := SUBSTR (num, i, 1);
+
+            SELECT DECODE (c,
+                           0, 'Zeroth ',
+                           1, 'First ',
+                           2, 'Second ',
+                           3, 'Third ',
+                           4, 'Fourth ',
+                           5, 'Fifth ',
+                           6, 'Sixth ',
+                           7, 'Seventh ',
+                           8, 'Eighth ',
+                           9, 'Ninth ')
+              INTO str
+              FROM DUAL;
+
+            num_to_word := num_to_word || str;
+        END LOOP;
+
+        RETURN num_to_word;
+    END number_to_word_adverb;
+
+    FUNCTION adverb_to_number (p_adverb VARCHAR2)
+        RETURN INTEGER
+    IS
+        advrb   VARCHAR2 (1000) := TRIM (LOWER (p_adverb));
+        num     NUMBER;
+    BEGIN
+        SELECT DECODE (advrb,
+                       'zeroth', 0,
+                       'first', 1,
+                       'second', 2,
+                       'third', 3,
+                       'fourth', 4,
+                       'fifth', 5,
+                       'sixth', 6,
+                       'seventh', 7,
+                       'eighth', 8,
+                       'ninth', 9,
+                       'tenth', 10,
+                       'eleventh', 11,
+                       'twelveth', 12,
+                       'thirteenth', 13,
+                       'fourteenth', 14,
+                       'fifteenth', 15,
+                       'sixteenth', 16,
+                       'seventeenth', 17,
+                       'eighteenth', 18,
+                       'nineteenth', 19,
+                       'twentyth', 20)
+          INTO num
+          FROM DUAL;
+
+        RETURN num;
+    END adverb_to_number;
+
     FUNCTION get_ordinal_number (p_num NUMBER)
         RETURN VARCHAR2
     IS
@@ -345,6 +418,46 @@ SELECT TO_CHAR (
             END;
         RETURN v_ordinal;
     END get_ordinal_number;
+    
+    
+    FUNCTION spell_number (p_number IN NUMBER)
+    RETURN VARCHAR2
+AS
+    TYPE myArray IS TABLE OF VARCHAR2 (255);
+
+    l_str      myArray
+                   := myArray ('',
+                               ' thousand ',
+                               ' million ',
+                               ' billion ',
+                               ' trillion ',
+                               ' quadrillion ',
+                               ' quintillion ',
+                               ' sextillion ',
+                               ' septillion ',
+                               ' octillion ',
+                               ' nonillion ',
+                               ' decillion ',
+                               ' undecillion ',
+                               ' duodecillion ');
+
+    l_num      VARCHAR2 (50) DEFAULT TRUNC (p_number);
+    l_return   VARCHAR2 (4000);
+BEGIN
+    FOR i IN 1 .. l_str.COUNT
+    LOOP
+        EXIT WHEN l_num IS NULL;
+
+        IF (SUBSTR (l_num, LENGTH (l_num) - 2, 3) <> 0)
+        THEN
+            l_return := TO_CHAR (TO_DATE (SUBSTR (l_num, LENGTH (l_num) - 2, 3), 'J'), 'Jsp') || l_str (i) || l_return;
+        END IF;
+
+        l_num := SUBSTR (l_num, 1, LENGTH (l_num) - 3);
+    END LOOP;
+
+    RETURN l_return;
+END spell_number;
     
     FUNCTION is_weekend (p_date DATE)
         RETURN BOOLEAN
@@ -439,3 +552,425 @@ SELECT *
         SELECT 'b' FROM DUAL
         UNION ALL
         SELECT 'c' FROM DUAL);
+        
+        
+   -- incomplete currently replaces repeated numbers need to fix that and optimize
+   FUNCTION word_adverb_to_number (p_adverb VARCHAR2)
+        RETURN INTEGER
+    IS
+
+--DECLARE
+--    p_adverb      VARCHAR2 (1000) := 'One Hundred and two';
+    -- declare variable are num, num_to_word, str, len, c
+    -- and in above declare variable num, len, c are integer datatype
+    -- and num_to_word and str are varchar datatype
+    num           INTEGER;                                                                                  -- := p_num;
+    advrb         VARCHAR2 (1000) := LOWER (p_adverb);
+    num_to_word   VARCHAR2 (100);                                                                         -- := p_adverb
+    str           VARCHAR2 (100);
+    len           INTEGER;
+    c             VARCHAR2 (100);
+    --        current_word  VARCHAR2(100);
+    word_list     VARCHAR2 (1000);
+BEGIN
+    -- length of number
+    len := LENGTH (advrb) - LENGTH (REPLACE (advrb, ' ')) + 1;
+
+    --        CASE
+    --            WHEN LENGTH (advrb) - LENGTH (REPLACE (advrb, ' ')) = 0 THEN 1
+    --            ELSE LENGTH (advrb) - LENGTH (REPLACE (advrb, ' '))
+    --        END;                                                                       --INSTR(advrb, ' ');--LENGTH (advrb);
+    IF len > 1
+    THEN
+        -- loop to go through each number
+        FOR i IN 1 .. len
+        LOOP
+            c := REGEXP_SUBSTR (advrb, '[^ ]+');
+            advrb := REPLACE (advrb, c);
+            --            c := SUBSTR (advrb, 1, LENGTH(current_word));
+            DBMS_OUTPUT.put_line ('c: ' || c);
+            DBMS_OUTPUT.put_line ('advrb: ' || advrb);
+
+            IF len > i
+            THEN
+                IF TRIM (LOWER (c)) = 'and'
+                THEN
+                    --                    DBMS_OUTPUT.put_line ('and if statement');
+                    NULL;
+                ELSE
+                    --            IF
+                    SELECT DECODE (c,
+                                   'zero', 0,
+                                   'one', 1,
+                                   'two', 2,
+                                   'three', 3,
+                                   'four', 4,
+                                   'five', 5,
+                                   'six', 6,
+                                   'seven', 7,
+                                   'eight', 8,
+                                   'nine', 9,
+                                   'ten', 10,
+                                   'eleven', 11,
+                                   'twelve', 12,
+                                   'thirteen', 13,
+                                   'fourteen', 14,
+                                   'fifteen', 15,
+                                   'sixteen', 16,
+                                   'seventeen', 17,
+                                   'eighteen', 18,
+                                   'nineteen', 19,
+                                   'twenty', 20,
+                                   'thirty', 30,
+                                   'forty', 40,
+                                   'fifty', 50,
+                                   'sixty', 60,
+                                   'seventy', 70,
+                                   'eighty', 80,
+                                   'ninety', 90,
+                                   'hundred', 100,
+                                   'thousand', 1000,
+                                   'million', 1000000,
+                                   'billion', 1000000000,
+                                   'trillion', 1000000000000)
+                      INTO str
+                      FROM DUAL;
+
+                    --            DBMS_OUTPUT.put_line ('num_to_word: ' || num_to_word);
+                    num_to_word :=
+                        CASE WHEN num_to_word IS NULL THEN str ELSE TO_NUMBER (num_to_word) * TO_NUMBER (str) END;
+                    DBMS_OUTPUT.put_line ('str: ' || str);
+                    DBMS_OUTPUT.put_line ('num_to_word: ' || num_to_word);
+                END IF;
+            ELSE
+                SELECT DECODE (c,
+                               'zero', 0,
+                               'one', 1,
+                               'two', 2,
+                               'three', 3,
+                               'four', 4,
+                               'five', 5,
+                               'six', 6,
+                               'seven', 7,
+                               'eight', 8,
+                               'nine', 9,
+                               'ten', 10,
+                               'eleven', 11,
+                               'twelve', 12,
+                               'thirteen', 13,
+                               'fourteen', 14,
+                               'fifteen', 15,
+                               'sixteen', 16,
+                               'seventeen', 17,
+                               'eighteen', 18,
+                               'nineteen', 19,
+                               'twenty', 20,
+                               'thirty', 30,
+                               'forty', 40,
+                               'fifty', 50,
+                               'sixty', 60,
+                               'seventy', 70,
+                               'eighty', 80,
+                               'ninety', 90,
+                               'hundred', 100,
+                               'thousand', 1000,
+                               'million', 1000000,
+                               'billion', 1000000000,
+                               'trillion', 1000000000000,
+                               'zeroth', 0,
+                               'first', 1,
+                               'second', 2,
+                               'third', 3,
+                               'fourth', 4,
+                               'fifth', 5,
+                               'sixth', 6,
+                               'seventh', 7,
+                               'eighth', 8,
+                               'ninth', 9,
+                               'tenth', 10,
+                               'eleventh', 11,
+                               'twelveth', 12,
+                               'thirteenth', 13,
+                               'fourteenth', 14,
+                               'fifteenth', 15,
+                               'sixteenth', 16,
+                               'seventeenth', 17,
+                               'eighteenth', 18,
+                               'nineteenth', 19,
+                               'twentyth', 20,
+                               'thirtyth', 30,
+                               'fortyth', 40,
+                               'fiftyth', 50,
+                               'sixtyth', 60,
+                               'seventyth', 70,
+                               'eightyth', 80,
+                               'ninetyth', 90,
+                               'hundredth', 100,
+                               'thousandth', 1000,
+                               'millionth', 1000000,
+                               'billionth', 1000000000,
+                               'trillionth', 1000000000000)
+                  INTO str
+                  FROM DUAL;
+
+                num_to_word := TO_NUMBER (num_to_word) + TO_NUMBER (str);
+            END IF;
+        END LOOP;
+    ELSE
+        c := TRIM (advrb);
+
+        SELECT DECODE (c,
+                       'zeroth', 0,
+                       'first', 1,
+                       'second', 2,
+                       'third', 3,
+                       'fourth', 4,
+                       'fifth', 5,
+                       'sixth', 6,
+                       'seventh', 7,
+                       'eighth', 8,
+                       'ninth', 9,
+                       'tenth', 10,
+                       'eleventh', 11,
+                       'twelveth', 12,
+                       'thirteenth', 13,
+                       'fourteenth', 14,
+                       'fifteenth', 15,
+                       'sixteenth', 16,
+                       'seventeenth', 17,
+                       'eighteenth', 18,
+                       'nineteenth', 19,
+                       'twentyth', 20,
+                       'thirtyth', 30,
+                       'fortyth', 40,
+                       'fiftyth', 50,
+                       'sixtyth', 60,
+                       'seventyth', 70,
+                       'eightyth', 80,
+                       'ninetyth', 90,
+                       'hundredth', 100,
+                       'thousandth', 1000,
+                       'millionth', 1000000,
+                       'billionth', 1000000000,
+                       'trillionth', 1000000000000)
+          INTO str
+          FROM DUAL;
+
+        num_to_word := num_to_word || str;
+    END IF;
+
+    --        RETURN num_to_word;
+    DBMS_OUTPUT.put_line (num_to_word);
+END;
+
+---------------- learning about function inheritence, online examples
+
+CREATE OR REPLACE type obj_supertype
+
+IS
+
+  object
+
+  (
+
+    obj_emp_id   VARCHAR2(30),
+
+    obj_emp_name VARCHAR2(30),
+
+    map member FUNCTION func_super_map RETURN NUMBER,
+
+    member FUNCTION func_super_print RETURN VARCHAR2) NOT final;
+
+  /
+
+CREATE OR REPLACE type body obj_supertype
+
+IS
+
+  map member FUNCTION func_super_map
+
+  RETURN NUMBER
+
+IS
+
+BEGIN
+
+  RETURN obj_emp_id;
+
+END;
+
+member FUNCTION func_super_print
+
+  RETURN VARCHAR2
+
+IS
+
+BEGIN
+
+  RETURN 'The Employee details for the ID '||obj_emp_id||' is Name: '||
+
+  obj_emp_name;
+
+END;
+
+END;
+
+---------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE TYPE super_t AS OBJECT
+  (n NUMBER) NOT final;
+/
+CREATE OR REPLACE TYPE sub_t UNDER super_t
+  (n2 NUMBER) NOT final;
+/
+CREATE OR REPLACE TYPE final_t UNDER sub_t
+  (n3 NUMBER);
+/
+CREATE OR REPLACE PACKAGE p IS
+   FUNCTION func (arg super_t) RETURN NUMBER;
+   FUNCTION func (arg sub_t) RETURN NUMBER;
+END;
+/
+CREATE OR REPLACE PACKAGE BODY p IS
+   FUNCTION func (arg super_t) RETURN NUMBER IS BEGIN RETURN 1; END;
+   FUNCTION func (arg sub_t) RETURN NUMBER IS BEGIN RETURN 2; END;
+END;
+/
+
+DECLARE
+  v final_t := final_t(1,2,3);
+BEGIN
+  DBMS_OUTPUT.PUT_LINE(p.func(v));  -- prints 2
+END;
+/
+
+
+-- Perform the following drop commands if you created these objects in Ex. 3-9
+ DROP PACKAGE p;
+ DROP TYPE final_t;
+ DROP TYPE sub_t;
+ DROP TYPE super_t FORCE;
+ 
+CREATE OR REPLACE TYPE super_t AS OBJECT
+  (n NUMBER, MEMBER FUNCTION func RETURN NUMBER) NOT final;
+/
+CREATE OR REPLACE TYPE BODY super_t AS
+ MEMBER FUNCTION func RETURN NUMBER IS BEGIN RETURN 1; END; END;
+/
+CREATE TYPE sub_t UNDER super_t
+  (n2 NUMBER,
+   OVERRIDING MEMBER FUNCTION func RETURN NUMBER) NOT final;
+/
+CREATE OR REPLACE TYPE BODY sub_t AS
+ OVERRIDING MEMBER FUNCTION func RETURN NUMBER IS BEGIN RETURN 2; END; END;
+/
+CREATE OR REPLACE TYPE final_t UNDER sub_t
+  (n3 NUMBER);
+/
+
+DECLARE
+  v super_t := final_t(1,2,3);
+BEGIN
+  DBMS_OUTPUT.PUT_LINE('answer:'|| v.func); -- prints 2
+END;
+/
+
+
+---------------------------------------------------------------------------------------------------
+
+
+--creating the base vehicle object type
+CREATE OR REPLACE TYPE vehicle_t AS OBJECT
+(
+vehicle_id NUMBER,
+manufacturer VARCHAR2(30),
+purchase_date DATE,
+color VARCHAR2 (10),
+MEMBER FUNCTION get_vehicle RETURN VARCHAR2
+)NOT FINAL;
+/
+
+CREATE TYPE BODY vehicle_t AS
+MEMBER FUNCTION get_vehicle RETURN VARCHAR2
+IS 
+BEGIN
+RETURN 'Vehicle ID:'|| TO_CHAR (vehicle_id) || 'Manufacturer:'|| manufacturer || 'Purchase Date:'||purchase_date||'Color:'||color;
+END get_vehicle;
+END;
+/
+
+-- CREATING SUB TYPE OF VEHICLE_T POWERED_VEHICLE  
+CREATE OR REPLACE TYPE powred_vehicle UNDER vehicle_t
+(
+fule_type VARCHAR2(30),
+license_number VARCHAR2 (10),
+model VARCHAR2 (10),
+OVERRIDING MEMBER FUNCTION get_vehicle RETURN VARCHAR2
+)FINAL;
+/
+
+CREATE TYPE BODY powred_vehicle AS
+OVERRIDING MEMBER FUNCTION get_vehicle RETURN VARCHAR2
+IS 
+BEGIN
+RETURN (self AS vehicle_t).get_vehicle || 'Fuel Type:'|| fule_type || 'License Number:'||license_number||'Model:'||model;
+END get_vehicle;
+END;
+/
+
+CREATE OR REPLACE TYPE bicycle UNDER vehicle_t
+(
+gear_count number,
+OVERRIDING MEMBER FUNCTION get_vehicle RETURN VARCHAR2,
+MEMBER PROCEDURE set_gear_count (p_gear_count IN bicycle, p_vehicleid IN vehicle_t)
+)FINAL;
+/
+
+
+CREATE TABLE vehicle_tab OF bicycle;
+
+CREATE TYPE BODY bicycle AS
+OVERRIDING MEMBER FUNCTION get_vehicle RETURN VARCHAR2
+IS 
+BEGIN
+RETURN (self AS vehicle_t).get_vehicle || 'Gear Count:'|| TO_CHAR(gear_count);
+END get_vehicle;
+MEMBER PROCEDURE set_gear_count (p_gear_count IN bicycle, p_vehicleid IN vehicle_t)
+IS
+BEGIN
+INSERT INTO vehicle_tab VALUES (p_gear_count, p_vehicleid);  -- INSERT INTO vehicle_tab VALUES (SELF);
+END set_gear_count;
+END;
+
+   CREATE TYPE first_thing AS OBJECT (
+   id        NUMBER,
+   first_name  VARCHAR2 (100)
+   )
+   NOT FINAL
+   ;
+   
+   CREATE TYPE second_thing UNDER first_thing (
+   age   NUMBER,
+   last_name          VARCHAR2(100)
+   )
+   NOT FINAL
+   ;
+   
+DECLARE
+   l_person   rbsx_users
+                     := rbsx_users (11,
+                                    'john',
+                                    67,
+                                    'doe');
+BEGIN
+   DBMS_OUTPUT.put_line (l_honda_user.first_name); 
+   DBMS_OUTPUT.put_line (l_honda_user.last_name); 
+END;
+/
+
+CREATE TYPE third_thing UNDER second_thing (
+   height NUMBER,
+   middle_name VARCHAR2 (200)
+   );
+/
+
