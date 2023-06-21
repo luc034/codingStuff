@@ -1,3 +1,41 @@
+CREATE or replace TYPE ERROR_LOG AS OBJECT
+(
+    error_code NUMBER,
+    error_message VARCHAR2 (4000),
+    backtrace CLOB,
+    callstack CLOB,
+    
+    MEMBER PROCEDURE set_error --(code number DEFAULT SQLCODE, msg varchar2, bt clob, cs clob)
+    
+) NOT FINAL;
+
+CREATE or replace TYPE BODY ERROR_LOG
+AS
+    MEMBER PROCEDURE set_error --(code number DEFAULT SQLCODE, msg varchar2 DEFAULT SQLERRM, bt clob DEFAULT DBMS_UTILITY.FORMAT_ERROR_BACKTRACE, cs clob DEFAULT DBMS_UTILITY.FORMAT_CALL_STACK)
+    IS
+    BEGIN
+        self.error_code := SQLCODE;
+        self.error_message := SQLERRM;
+        self.backtrace := DBMS_UTILITY.FORMAT_ERROR_BACKTRACE;
+        self.callstack := DBMS_UTILITY.FORMAT_CALL_STACK;
+    END set_error;
+    
+    
+END;
+
+DECLARE 
+
+e_log ERROR_LOG := ERROR_LOG('','','','');
+
+BEGIN
+e_log.set_error;
+
+dbms_output.put_line('error code: ' || e_log.error_code);
+dbms_output.put_line('error message: ' || e_log.error_message);
+dbms_output.put_line('error backtrace: ' || e_log.backtrace);
+dbms_output.put_line('error callstack: ' ||  e_log.callstack);
+
+END;
 
 DECLARE 
 str1 varchar2(1000) := 'the big string';
