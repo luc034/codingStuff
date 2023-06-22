@@ -308,16 +308,16 @@ SELECT TO_CHAR (
                        '[^[:punct:]]+'                                                             -- Punction Dilimeter 
                    WHEN p_num = 1
                    THEN
-                       '[[:space:]]+([[:alnum:]_]+)'                       -- Username -- pattern: username or username2 Prefix should be Username:
+                       '[[:space:]]+([[:alnum:]_]+)'                        -- pattern: username or username2 Prefix should be Username:
                    WHEN p_num = 2
                    THEN
-                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)' -- Admin -- pattern: FirstName LastName Prefix should be Attention: 
+                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)'  -- pattern: FirstName LastName Prefix should be Attention: 
                    WHEN p_num = 3
                    THEN
-                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)' -- due date -- pattern: June 25th, 2023 no prefix
+                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)'  -- pattern: June 25th, 2023 no prefix
                    WHEN p_num = 4
                    THEN
-                       '[[:digit:]]*/*([[:digit:]_]+)'                               -- billing cycle -- pattern: 2023/1 no prefix
+                       '[[:digit:]]*/*([[:digit:]_]+)'                                -- pattern: 2023/1 no prefix
                    WHEN p_num = 5
                    THEN
                        '([[:punct:]_]+)'                  --'[^[:punct:]]+'                         -- Replaces Punction
@@ -390,16 +390,16 @@ SELECT TO_CHAR (
                        '[^[:punct:]]+'                                                             -- Punction Dilimeter
                    WHEN p_num = 1
                    THEN
-                       '[[:space:]]+([[:alnum:]_]+)'                       -- Username -- pattern: username or username2 Prefix should be Username:
+                       '[[:space:]]+([[:alnum:]_]+)'                       -- pattern: username or username2 Prefix should be Username:
                    WHEN p_num = 2
                    THEN
-                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)' -- Admin -- pattern: FirstName LastName Prefix should be Attention: 
+                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)'  -- pattern: FirstName LastName Prefix should be Attention: 
                    WHEN p_num = 3
                    THEN
-                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)' -- due date -- pattern: June 25th, 2023
+                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)'  -- pattern: June 25th, 2023
                    WHEN p_num = 4
                    THEN
-                       '[[:digit:]]*/*([[:digit:]_]+)'                               -- billing cycle -- pattern: 2023/1
+                       '[[:digit:]]*/*([[:digit:]_]+)'                                -- pattern: 2023/1
                    WHEN p_num = 5
                    THEN
                        '([[:punct:]_]+)'                  --'[^[:punct:]]+'                         -- Replaces Punction
