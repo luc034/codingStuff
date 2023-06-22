@@ -5,13 +5,14 @@ CREATE or replace TYPE ERROR_LOG AS OBJECT
     backtrace CLOB,
     callstack CLOB,
     
-    MEMBER PROCEDURE set_error --(code number DEFAULT SQLCODE, msg varchar2, bt clob, cs clob)
+    MEMBER PROCEDURE set_error,
+    MEMBER FUNCTION get_error_status(p_error_status VARCHAR2) RETURN VARCHAR2
     
 ) NOT FINAL;
 
 CREATE or replace TYPE BODY ERROR_LOG
 AS
-    MEMBER PROCEDURE set_error --(code number DEFAULT SQLCODE, msg varchar2 DEFAULT SQLERRM, bt clob DEFAULT DBMS_UTILITY.FORMAT_ERROR_BACKTRACE, cs clob DEFAULT DBMS_UTILITY.FORMAT_CALL_STACK)
+    MEMBER PROCEDURE set_error
     IS
     BEGIN
         self.error_code := SQLCODE;
@@ -20,12 +21,33 @@ AS
         self.callstack := DBMS_UTILITY.FORMAT_CALL_STACK;
     END set_error;
     
+    MEMBER FUNCTION get_error_status(p_error_status VARCHAR2) 
+    RETURN VARCHAR2
+    IS
+    BEGIN
+        RETURN
+                   ' failed, error code: '
+                || SQLCODE
+                || chr(13)
+                || ' Error Message: '
+                || SQLERRM
+                || chr(13)
+                || ' Line failed on: '
+                || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE
+                || chr(13)
+                || ' Callstack: '
+                || DBMS_UTILITY.FORMAT_CALL_STACK
+                || CHR (13)
+                || p_error_status;
+    END get_error_status;
     
 END;
 
+-- method to test it 
 DECLARE 
 
 e_log ERROR_LOG := ERROR_LOG('','','','');
+v_error_message VARCHAR2(4000);
 
 BEGIN
 e_log.set_error;
@@ -34,8 +56,13 @@ dbms_output.put_line('error code: ' || e_log.error_code);
 dbms_output.put_line('error message: ' || e_log.error_message);
 dbms_output.put_line('error backtrace: ' || e_log.backtrace);
 dbms_output.put_line('error callstack: ' ||  e_log.callstack);
+v_error_message := e_log.get_error_status(v_error_message);
+dbms_output.put_line('Program' || v_error_message);
+
 
 END;
+
+
 
 DECLARE 
 str1 varchar2(1000) := 'the big string';
@@ -266,6 +293,170 @@ SELECT TO_CHAR (
 --|| CHR(TRUNC(dbms_random.value(49,57)))  -- 1..9
 
 -- cool procedures that are useful for stuff
+
+-- 2 uses, p_num > 0 is a replacer p_num = 0 is a seperator 
+    PROCEDURE dynamic_replacer (p_list     IN     VARCHAR2,
+                                p_body     IN OUT CLOB,
+                                p_prefix   IN     VARCHAR2 DEFAULT '',
+                                p_num      IN     NUMBER DEFAULT 0)
+    IS
+        -- expression for 'Username: variable'
+        v_expression         VARCHAR2 (2000)                                   -- 'Username:[[:space:]]+([[:alnum:]_]+)'
+            := CASE
+                   WHEN p_num = 0
+                   THEN
+                       '[^[:punct:]]+'                                                             -- Punction Dilimeter 
+                   WHEN p_num = 1
+                   THEN
+                       '[[:space:]]+([[:alnum:]_]+)'                       -- Username -- pattern: username or username2 Prefix should be Username:
+                   WHEN p_num = 2
+                   THEN
+                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)' -- Admin -- pattern: FirstName LastName Prefix should be Attention: 
+                   WHEN p_num = 3
+                   THEN
+                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)' -- due date -- pattern: June 25th, 2023 no prefix
+                   WHEN p_num = 4
+                   THEN
+                       '[[:digit:]]*/*([[:digit:]_]+)'                               -- billing cycle -- pattern: 2023/1 no prefix
+                   WHEN p_num = 5
+                   THEN
+                       '([[:punct:]_]+)'                  --'[^[:punct:]]+'                         -- Replaces Punction
+               END;
+        -- how many usernames are in the email currently
+        v_count              NUMBER := REGEXP_COUNT (p_body, p_prefix || v_expression);   --'Username:[[:space:]]+([[:alnum:]_]+)');
+        -- how many usernames are going into the email
+        v_total              NUMBER := LENGTH (p_list) - LENGTH (REGEXP_REPLACE (p_list, '([[:punct:]_]+)', '')) + 1;
+        -- for multiple instances of the expression
+        v_multi_expression   VARCHAR2 (2000) := v_expression;
+        -- for holding each 'Username: variable' instance
+        v_replacement        VARCHAR2 (1000) := p_list;
+        v_punct_substr       VARCHAR2 (100) := '[^[:punct:]]+';
+    BEGIN
+        IF p_num > 0
+        THEN
+            IF p_num = 1 OR p_num = 2
+            THEN
+                FOR indx IN 1 .. v_total
+                LOOP
+                    IF indx = 1
+                    THEN
+                        v_replacement :=
+                               p_prefix
+                            || REGEXP_SUBSTR (p_list,
+                                              v_punct_substr,
+                                              1,
+                                              indx);
+                    ELSE
+                        v_replacement :=
+                               v_replacement
+                            || '<br>'
+                            || p_prefix
+                            || REGEXP_SUBSTR (p_list,
+                                              v_punct_substr,
+                                              1,
+                                              indx);
+                    END IF;
+                END LOOP;
+
+
+                FOR i IN 2 .. v_count
+                LOOP
+                    v_multi_expression := v_expression || '<br>' || v_multi_expression;
+                END LOOP;
+            END IF;
+
+            p_body := REGEXP_REPLACE (p_body, v_multi_expression, v_replacement);
+        -- when p_num = 0 then procedure has a different use can be used to cycle through a list when p_list is the list, p_body is the return, p_prefix is the number
+        ELSE
+            p_body :=
+                REGEXP_SUBSTR (p_list,
+                               v_multi_expression,
+                               1,
+                               TO_NUMBER (p_prefix));
+        END IF;
+    END dynamic_replacer;
+
+
+    PROCEDURE dynamic_replacer (p_list     IN     VARCHAR2,
+                                p_body     IN OUT VARCHAR2,
+                                p_prefix   IN     VARCHAR2 DEFAULT '',
+                                p_num      IN     NUMBER DEFAULT 0)
+    IS
+        -- expression for 'Username: variable'
+        v_expression         VARCHAR2 (2000)                                   -- 'Username:[[:space:]]+([[:alnum:]_]+)'
+            := CASE
+                   WHEN p_num = 0
+                   THEN
+                       '[^[:punct:]]+'                                                             -- Punction Dilimeter
+                   WHEN p_num = 1
+                   THEN
+                       '[[:space:]]+([[:alnum:]_]+)'                       -- Username -- pattern: username or username2 Prefix should be Username:
+                   WHEN p_num = 2
+                   THEN
+                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)' -- Admin -- pattern: FirstName LastName Prefix should be Attention: 
+                   WHEN p_num = 3
+                   THEN
+                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)' -- due date -- pattern: June 25th, 2023
+                   WHEN p_num = 4
+                   THEN
+                       '[[:digit:]]*/*([[:digit:]_]+)'                               -- billing cycle -- pattern: 2023/1
+                   WHEN p_num = 5
+                   THEN
+                       '([[:punct:]_]+)'                  --'[^[:punct:]]+'                         -- Replaces Punction
+               END;
+        -- how many usernames are in the email currently
+        v_count              NUMBER := REGEXP_COUNT (p_body, p_prefix || v_expression);   --'Username:[[:space:]]+([[:alnum:]_]+)');
+        -- how many usernames are going into the email
+        v_total              NUMBER := LENGTH (p_list) - LENGTH (REGEXP_REPLACE (p_list, '([[:punct:]_]+)', '')) + 1;
+        -- for multiple instances of the expression
+        v_multi_expression   VARCHAR2 (2000) := v_expression;
+        -- for holding each 'Username: variable' instance
+        v_replacement        VARCHAR2 (2000) := p_list;
+        v_punct_substr       VARCHAR2 (100) := '[^[:punct:]]+';
+    BEGIN
+        IF p_num > 0
+        THEN
+            IF p_num = 1 OR p_num = 2
+            THEN
+                FOR indx IN 1 .. v_total
+                LOOP
+                    IF indx = 1
+                    THEN
+                        v_replacement :=
+                               p_prefix
+                            || REGEXP_SUBSTR (p_list,
+                                              v_punct_substr,
+                                              1,
+                                              indx);
+                    ELSE
+                        v_replacement :=
+                               v_replacement
+                            || '<br>'
+                            || p_prefix
+                            || REGEXP_SUBSTR (p_list,
+                                              v_punct_substr,
+                                              1,
+                                              indx);
+                    END IF;
+                END LOOP;
+
+
+                FOR i IN 2 .. v_count
+                LOOP
+                    v_multi_expression := v_expression || '<br>' || v_multi_expression;
+                END LOOP;
+            END IF;
+
+            p_body := REGEXP_REPLACE (p_body, v_multi_expression, v_replacement);
+        -- when p_num = 0 then procedure has a different use can be used to cycle through a list when p_list is the list, p_body is the return, p_prefix is the number
+        ELSE
+            p_body :=
+                REGEXP_SUBSTR (p_list,
+                               v_multi_expression,
+                               1,
+                               TO_NUMBER (p_prefix));
+        END IF;
+    END dynamic_replacer;
 
     PROCEDURE user_seperator (p_list        IN     VARCHAR2,
                               p_delimiter   IN     VARCHAR2,
