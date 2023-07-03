@@ -294,7 +294,166 @@ SELECT TO_CHAR (
 
 -- cool procedures that are useful for stuff
 
+    FUNCTION what_is (p_var VARCHAR2)
+        RETURN VARCHAR2
+    IS
+        str   VARCHAR2 (100);
+    BEGIN
+        str :=
+            CASE
+                WHEN REGEXP_LIKE (p_var, '^([[:punct:]_]+)+([[:digit:]_]+)+([[:punct:]_]+)+[0-9]{2}')
+                THEN
+                    'currency'
+                WHEN    REGEXP_LIKE (p_var, '^[0-9]{2}/[0-9]{2}/[0-9]{4}$')
+                     OR REGEXP_LIKE (p_var, '^[0-9]{2}-[A-Za-z]{3}-[0-9]{2}$')
+                THEN
+                    'date'
+                WHEN    REGEXP_LIKE (UPPER (p_var), '^[0-9]{2}:[0-9]{2}PM$')
+                     OR REGEXP_LIKE (p_var, '^[0-9]{2}:[0-9]{2}AM$')
+                THEN
+                    'time'
+                WHEN REGEXP_LIKE (p_var, '^[^a-zA-Z]*$')
+                THEN
+                    'number'
+                WHEN REGEXP_LIKE (p_var, '^[^g-zG-Z]*$')
+                THEN
+                    'hex'
+                ELSE
+                    'string'
+            END;
+        RETURN str;
+    END;
+
+FUNCTION parse_Date (in_string VARCHAR2, in_format VARCHAR2 DEFAULT 'YYYY-MM-DD', in_nls_params VARCHAR2 DEFAULT NULL)
+    RETURN DATE
+    DETERMINISTIC
+AS
+BEGIN
+    RETURN TO_DATE (in_string, in_format, in_nls_params);
+EXCEPTION
+    WHEN OTHERS
+    THEN
+        RETURN NULL;
+END;
+
+FUNCTION find_Date (in_string       VARCHAR2,
+                    in_format       VARCHAR2 DEFAULT 'MONTH DD YYYY',
+                    in_nls_params   VARCHAR2 DEFAULT NULL)
+    RETURN DATE
+    DETERMINISTIC
+AS
+BEGIN
+    RETURN parse_Date (
+        REGEXP_SUBSTR (
+            in_string,
+               '(JANUARY|FEBRUARY|MARCH|APRIL|MAY|JUNE|JULY|AUGUST|SEPTEMBER|'
+            || 'OCTOBER|NOVEMBER|DECEMBER)'
+            || '[[:space:]]+([012]?[0-9]|3[01])'
+            || '[[:punct:][:space:]]+\d{4}',
+            1,
+            1,
+            'i'),
+        in_format,
+        in_nls_params);
+END;
+
+FUNCTION get_format (in_string VARCHAR2)
+    RETURN VARCHAR2
+AS
+-- so far does:
+-- 'MM/DD/YYYY' ; 'DD/MM/YYYY' ; 'YYYY/MM/DD' ; 'YYYY/DD/MM' ; 
+-- (defaults to 'MM/DD/YYYY' or 'YYYY/MM/DD' if day and month < 13)
+-- 'MM-DD-YYYY' ; 'DD-MM-YYYY' ; 'YYYY-MM-DD' ; 'YYYY-DD-MM' ; 
+-- (defaults to 'MM-DD-YYYY' or 'YYYY-MM-DD' if day and month < 13)
+-- 'DD-MON-YY' ; 'FMMonth Ddth, YYYY' ; 'FMMonth Dd, YYYY'
+BEGIN
+    IF (REGEXP_LIKE (in_string, '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'))
+    THEN
+        IF SUBSTR (REGEXP_SUBSTR (in_string,
+                                  '[^/]+',                                                            -- '[^[:punct:]]+'
+                                  1,
+                                  1),
+                   -2) < 13
+        THEN
+            RETURN 'MM/DD/YYYY';
+        ELSIF REGEXP_SUBSTR (in_string,
+                             '[^/]+',                                                                 -- '[^[:punct:]]+'
+                             1,
+                             2) < 13
+        THEN
+            RETURN 'DD/MM/YYYY';
+        END IF;
+    ELSIF (REGEXP_LIKE (in_string, '^[0-9]{4}/[0-9]{2}/[0-9]{2}$'))
+    THEN
+        IF REGEXP_SUBSTR (in_string,
+                          '[^/]+',                                                                    -- '[^[:punct:]]+'
+                          1,
+                          2) < 13
+        THEN
+            RETURN 'YYYY/MM/DD';
+        ELSIF SUBSTR (REGEXP_SUBSTR (in_string,
+                                     '[^/]+',                                                         -- '[^[:punct:]]+'
+                                     1,
+                                     3),
+                      2) < 13
+        THEN
+            RETURN 'YYYY/DD/MM';
+        END IF;
+    ELSIF (REGEXP_LIKE (in_string, '^[0-9]{2}-[0-9]{2}-[0-9]{4}$'))
+    THEN
+        IF SUBSTR (REGEXP_SUBSTR (in_string,
+                                  '[^-]+',                                                            -- '[^[:punct:]]+'
+                                  1,
+                                  1),
+                   -2) < 13
+        THEN
+            RETURN 'MM-DD-YYYY';
+        ELSIF REGEXP_SUBSTR (in_string,
+                             '[^-]+',                                                                 -- '[^[:punct:]]+'
+                             1,
+                             2) < 13
+        THEN
+            RETURN 'DD-MM-YYYY';
+        END IF;
+    ELSIF (REGEXP_LIKE (in_string, '^[0-9]{4}-[0-9]{2}-[0-9]{2}$'))
+    THEN
+        IF REGEXP_SUBSTR (in_string,
+                          '[^/]+',                                                                    -- '[^[:punct:]]+'
+                          1,
+                          2) < 13
+        THEN
+            RETURN 'YYYY-MM-DD';
+        ELSIF SUBSTR (REGEXP_SUBSTR (in_string,
+                                     '[^/]+',                                                         -- '[^[:punct:]]+'
+                                     1,
+                                     3),
+                      2) < 13
+        THEN
+            RETURN 'YYYY-DD-MM';
+        END IF;
+    ELSIF (REGEXP_LIKE (in_string, '^[0-9]{2}-[A-Za-z]{3}-[0-9]{2}$'))
+    THEN
+        RETURN 'DD-MON-YY';
+    ELSIF (REGEXP_LIKE (in_string, '^[A-Za-z]{3,9} [0-9A-Za-z]{1,4}, [0-9]{4}$'))
+    THEN
+        IF (REGEXP_LIKE (in_string, '^[A-Za-z]{3,9} [0-9A-Za-z]{3,4}, [0-9]{4}$'))
+        THEN
+            RETURN 'FMMonth Ddth, YYYY';
+        ELSIF (REGEXP_LIKE (in_string, '^[A-Za-z]{3,9} [0-9]{1,2}, [0-9]{4}$'))
+        THEN
+            RETURN 'FMMonth Dd, YYYY';
+        END IF;
+    END IF;
+END;
+    -- '[[:digit:]]+/+([[:digit:]_]+)'  '[[:digit:]]+/+[[:digit:]]+/+([[:digit:]_]+)'
+    -- '^[0-9]{2}/[0-9]{2}/[0-9]{4}$'   '^0-9]{4}/[0-9]{1}$'
+
 -- 2 uses, p_num > 0 is a replacer p_num = 0 is a seperator 
+    -- p_num = 0 : Seperator
+    -- p_num = 1 : username replacer
+    -- p_num = 2 : admin replacer
+    -- p_num = 3 : due date replacer
+    -- p_num = 4 : billing cycle replacer
     PROCEDURE dynamic_replacer (p_list     IN     VARCHAR2,
                                 p_body     IN OUT CLOB,
                                 p_prefix   IN     VARCHAR2 DEFAULT '',
@@ -305,25 +464,25 @@ SELECT TO_CHAR (
             := CASE
                    WHEN p_num = 0
                    THEN
-                       '[^[:punct:]]+'                                                             -- Punction Dilimeter 
+                       '[^[:punct:]]+'                                                             -- Punction Dilimeter
                    WHEN p_num = 1
                    THEN
-                       '[[:space:]]+([[:alnum:]_]+)'                        -- pattern: username or username2 Prefix should be Username:
+                       p_prefix || '[[:space:]]+([[:alnum:]_]+)'  -- pattern: username or username2 Prefix should be Username:
                    WHEN p_num = 2
                    THEN
-                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)'  -- pattern: FirstName LastName Prefix should be Attention: 
+                       p_prefix || '[[:space:]]+([[:alpha:]_]+)+[[:space:]]+([[:alpha:]_]+)'  -- pattern: FirstName LastName Prefix should be Attention:
                    WHEN p_num = 3
                    THEN
                        '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)'  -- pattern: June 25th, 2023 no prefix
                    WHEN p_num = 4
                    THEN
-                       '[[:digit:]]*/*([[:digit:]_]+)'                                -- pattern: 2023/1 no prefix
+                       '[[:digit:]]+/+([[:digit:]_]+)'                      -- pattern: 2023/1 no prefix
                    WHEN p_num = 5
                    THEN
                        '([[:punct:]_]+)'                  --'[^[:punct:]]+'                         -- Replaces Punction
                END;
         -- how many usernames are in the email currently
-        v_count              NUMBER := REGEXP_COUNT (p_body, p_prefix || v_expression);   --'Username:[[:space:]]+([[:alnum:]_]+)');
+        v_count              NUMBER := REGEXP_COUNT (p_body, v_expression);   --'Username:[[:space:]]+([[:alnum:]_]+)');
         -- how many usernames are going into the email
         v_total              NUMBER := LENGTH (p_list) - LENGTH (REGEXP_REPLACE (p_list, '([[:punct:]_]+)', '')) + 1;
         -- for multiple instances of the expression
@@ -342,6 +501,7 @@ SELECT TO_CHAR (
                     THEN
                         v_replacement :=
                                p_prefix
+                            || ' '
                             || REGEXP_SUBSTR (p_list,
                                               v_punct_substr,
                                               1,
@@ -351,6 +511,7 @@ SELECT TO_CHAR (
                                v_replacement
                             || '<br>'
                             || p_prefix
+                            || ' '
                             || REGEXP_SUBSTR (p_list,
                                               v_punct_substr,
                                               1,
@@ -358,11 +519,13 @@ SELECT TO_CHAR (
                     END IF;
                 END LOOP;
 
-
-                FOR i IN 2 .. v_count
-                LOOP
-                    v_multi_expression := v_expression || '<br>' || v_multi_expression;
-                END LOOP;
+                IF p_num = 1
+                THEN
+                    FOR i IN 2 .. v_count
+                    LOOP
+                        v_multi_expression := v_expression || '<br>' || v_multi_expression;
+                    END LOOP;
+                END IF;
             END IF;
 
             p_body := REGEXP_REPLACE (p_body, v_multi_expression, v_replacement);
@@ -377,6 +540,11 @@ SELECT TO_CHAR (
     END dynamic_replacer;
 
 
+    -- p_num = 0 : Seperator
+    -- p_num = 1 : username replacer
+    -- p_num = 2 : admin replacer
+    -- p_num = 3 : due date replacer
+    -- p_num = 4 : billing cycle replacer
     PROCEDURE dynamic_replacer (p_list     IN     VARCHAR2,
                                 p_body     IN OUT VARCHAR2,
                                 p_prefix   IN     VARCHAR2 DEFAULT '',
@@ -390,28 +558,28 @@ SELECT TO_CHAR (
                        '[^[:punct:]]+'                                                             -- Punction Dilimeter
                    WHEN p_num = 1
                    THEN
-                       '[[:space:]]+([[:alnum:]_]+)'                       -- pattern: username or username2 Prefix should be Username:
+                       p_prefix || '[[:space:]]+([[:alnum:]_]+)'  -- pattern: username or username2 Prefix should be Username:
                    WHEN p_num = 2
                    THEN
-                       '[[:space:]]*([[:alpha:]_]+)*[[:space:]]*([[:alpha:]_]+)'  -- pattern: FirstName LastName Prefix should be Attention: 
+                       p_prefix || '[[:space:]]+([[:alpha:]_]+)+[[:space:]]+([[:alpha:]_]+)'  -- pattern: FirstName LastName Prefix should be Attention:
                    WHEN p_num = 3
                    THEN
-                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)'  -- pattern: June 25th, 2023
+                       '([[:alpha:]_]+)+[[:space:]]+([[:alnum:]_]+)+([[:punct:]_]+)+[[:space:]]+([[:digit:]_]+)'  -- pattern: June 25th, 2023 no prefix
                    WHEN p_num = 4
                    THEN
-                       '[[:digit:]]*/*([[:digit:]_]+)'                                -- pattern: 2023/1
+                       '[[:digit:]]+/+([[:digit:]_]+)'                     -- pattern: 2023/1 no prefix
                    WHEN p_num = 5
                    THEN
                        '([[:punct:]_]+)'                  --'[^[:punct:]]+'                         -- Replaces Punction
                END;
         -- how many usernames are in the email currently
-        v_count              NUMBER := REGEXP_COUNT (p_body, p_prefix || v_expression);   --'Username:[[:space:]]+([[:alnum:]_]+)');
+        v_count              NUMBER := REGEXP_COUNT (p_body, v_expression);   --'Username:[[:space:]]+([[:alnum:]_]+)');
         -- how many usernames are going into the email
         v_total              NUMBER := LENGTH (p_list) - LENGTH (REGEXP_REPLACE (p_list, '([[:punct:]_]+)', '')) + 1;
         -- for multiple instances of the expression
         v_multi_expression   VARCHAR2 (2000) := v_expression;
         -- for holding each 'Username: variable' instance
-        v_replacement        VARCHAR2 (2000) := p_list;
+        v_replacement        VARCHAR2 (1000) := p_list;
         v_punct_substr       VARCHAR2 (100) := '[^[:punct:]]+';
     BEGIN
         IF p_num > 0
@@ -424,6 +592,7 @@ SELECT TO_CHAR (
                     THEN
                         v_replacement :=
                                p_prefix
+                            || ' '
                             || REGEXP_SUBSTR (p_list,
                                               v_punct_substr,
                                               1,
@@ -433,6 +602,7 @@ SELECT TO_CHAR (
                                v_replacement
                             || '<br>'
                             || p_prefix
+                            || ' '
                             || REGEXP_SUBSTR (p_list,
                                               v_punct_substr,
                                               1,
@@ -440,11 +610,13 @@ SELECT TO_CHAR (
                     END IF;
                 END LOOP;
 
-
-                FOR i IN 2 .. v_count
-                LOOP
-                    v_multi_expression := v_expression || '<br>' || v_multi_expression;
-                END LOOP;
+                IF p_num = 1
+                THEN
+                    FOR i IN 2 .. v_count
+                    LOOP
+                        v_multi_expression := v_expression || '<br>' || v_multi_expression;
+                    END LOOP;
+                END IF;
             END IF;
 
             p_body := REGEXP_REPLACE (p_body, v_multi_expression, v_replacement);
