@@ -1,3 +1,85 @@
+-- cursor vs record race using VARRARY 
+DECLARE
+    TYPE r_time_trial IS RECORD
+    (
+        t1             TIMESTAMP,
+        t2             TIMESTAMP,
+        time_cursor    VARCHAR2 (100),
+        time_record    VARCHAR2 (100)
+    );
+
+    TYPE v_time_trial IS TABLE OF r_time_trial;
+
+    v_recorder      v_time_trial;
+
+    TYPE vb_trial_array IS VARRAY (366) OF r_time_trial;
+
+    v_trial_array   vb_trial_array := vb_trial_array ();
+BEGIN
+    FOR i IN 1 .. 10
+    LOOP
+        v_trial_array.EXTEND;
+        v_trial_array (i).t1 := SYSTIMESTAMP;
+
+        DECLARE
+            CURSOR BULK_COLLECTOR IS
+                SELECT 'column' AS column_1, 'column' AS column_2, 'column' AS column_3, 'column' AS column_4 FROM DUAL;
+        BEGIN
+            FOR indx IN BULK_COLLECTOR
+            LOOP
+                DBMS_OUTPUT.put_line (indx.column_1);
+                DBMS_OUTPUT.put_line (indx.column_2);
+                DBMS_OUTPUT.put_line (indx.column_3);
+                DBMS_OUTPUT.put_line (indx.column_4);
+            END LOOP;
+        END;
+
+        v_trial_array (i).t2 := SYSTIMESTAMP;
+        v_trial_array (i).time_cursor := v_trial_array (i).t2 - v_trial_array (i).t1;
+        v_trial_array (i).t1 := SYSTIMESTAMP;
+
+        DECLARE
+            TYPE r_current_user IS RECORD
+            (
+                column_1    VARCHAR2 (500),
+                column_2    VARCHAR2 (500),
+                column_3    VARCHAR2 (500),
+                column_4    VARCHAR2 (500)
+            );
+
+            TYPE v_current_user IS TABLE OF r_current_user;
+
+            BULK_COLLECTOR   v_current_user;
+        BEGIN
+            SELECT 'column'     AS column_1,
+                   'column'     AS column_2,
+                   'column'     AS column_3,
+                   'column'     AS column_4
+              BULK COLLECT INTO BULK_COLLECTOR
+              FROM DUAL;
+
+            FOR indx IN 1 .. BULK_COLLECTOR.COUNT
+            LOOP
+                DBMS_OUTPUT.put_line (BULK_COLLECTOR (indx).column_1);
+                DBMS_OUTPUT.put_line (BULK_COLLECTOR (indx).column_2);
+                DBMS_OUTPUT.put_line (BULK_COLLECTOR (indx).column_3);
+                DBMS_OUTPUT.put_line (BULK_COLLECTOR (indx).column_4);
+            END LOOP;
+        END;
+
+        v_trial_array (i).t2 := SYSTIMESTAMP;
+        v_trial_array (i).time_record := v_trial_array (i).t2 - v_trial_array (i).t1;
+    END LOOP;
+
+    FOR i IN 1 .. v_trial_array.COUNT
+    LOOP
+        DBMS_OUTPUT.put_line ('trial ' || i || ':');
+        DBMS_OUTPUT.put_line ('Record elapsed time: ' || v_trial_array (i).time_record);
+        DBMS_OUTPUT.put_line ('Cursor elapsed time: ' || v_trial_array (i).time_cursor);
+        DBMS_OUTPUT.put_line (CHR (13));
+    END LOOP;
+END;
+
 CREATE or replace TYPE ERROR_LOG AS OBJECT
 (
     error_code NUMBER,
