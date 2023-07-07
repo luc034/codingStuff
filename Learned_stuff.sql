@@ -941,6 +941,20 @@ BEGIN
 
     RETURN l_return;
 END spell_number;
+
+FUNCTION percentage_inc_over_int (p_amount NUMBER, p_years NUMBER, p_percent NUMBER)
+        RETURN NUMBER
+    IS
+    BEGIN
+        IF p_years > 1
+        THEN
+            RETURN ROUND(percentage_inc_over_int (p_amount + (p_amount * p_percent), p_years - 1, p_percent),2);
+        ELSE
+            RETURN ROUND(p_amount + (p_amount * p_percent),2);
+        END IF;
+
+        NULL;
+    END;
     
     FUNCTION is_weekend (p_date DATE)
         RETURN BOOLEAN
@@ -1456,4 +1470,64 @@ CREATE TYPE third_thing UNDER second_thing (
    middle_name VARCHAR2 (200)
    );
 /
+--euler_constant NUMBER := 0.577215664901532860606512090082;
+--golden_ratio NUMBER := 1.618033988749894;
 
+    FUNCTION pi
+        RETURN NUMBER
+    IS
+    BEGIN
+        RETURN ACOS (-1);
+    END;
+    
+    FUNCTION eulers_number
+        RETURN NUMBER
+    IS
+    BEGIN
+        RETURN EXP(1);
+    END;
+FUNCTION p_rectangle(p_length NUMBER, p_width NUMBER)
+RETURN NUMBER
+IS
+v_length2 NUMBER := p_length * 2;
+v_width2 NUMBER := p_width * 2;
+BEGIN
+RETURN v_length2 + v_width2;
+END;
+
+FUNCTION a_rectangle(p_length NUMBER, p_width NUMBER)
+RETURN NUMBER
+IS
+BEGIN
+RETURN p_length * p_width;
+END;
+
+FUNCTION p_square(p_side NUMBER)
+RETURN NUMBER
+IS
+BEGIN
+RETURN p_side * 4;
+END;
+
+FUNCTION a_square(p_side NUMBER)
+RETURN NUMBER
+IS
+BEGIN
+RETURN p_side * p_side;
+END;
+
+FUNCTION p_rectangle(p_length NUMBER, p_width NUMBER)
+RETURN NUMBER
+IS
+v_length2 NUMBER := p_length * 2;
+v_width2 NUMBER := p_width * 2;
+BEGIN
+RETURN v_length2 + v_width2;
+END;
+
+FUNCTION a_rectangle(p_length NUMBER, p_width NUMBER)
+RETURN NUMBER
+IS
+BEGIN
+RETURN p_length * p_width;
+END;
