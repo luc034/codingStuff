@@ -1,0 +1,53 @@
+shell script notes
+
+equalities
+Command	Description
+&&	Logical AND
+$0	Argument 0 i.e. the command that’s used to run the script
+$1	First argument (change number to access further arguments)
+-eq	Equality check
+-ne	Inequality check
+-lt	Less Than
+-le	Less Than or Equal
+-gt	Greater Than
+-ge	Greater Than or Equal
+
+Below are some of the most commonly used operators:
+
+-n VAR - True if the length of VAR is greater than zero.
+-z VAR - True if the VAR is empty.
+STRING1 = STRING2 - True if STRING1 and STRING2 are equal.
+STRING1 != STRING2 - True if STRING1 and STRING2 are not equal.
+INTEGER1 -eq INTEGER2 - True if INTEGER1 and INTEGER2 are equal.
+INTEGER1 -gt INTEGER2 - True if INTEGER1 is greater than INTEGER2.
+INTEGER1 -lt INTEGER2 - True if INTEGER1 is less than INTEGER2.
+INTEGER1 -ge INTEGER2 - True if INTEGER1 is equal or greater than INTEGER2.
+INTEGER1 -le INTEGER2 - True if INTEGER1 is equal or less than INTEGER2.
+-h FILE - True if the FILE exists and is a symbolic link.
+-r FILE - True if the FILE exists and is readable.
+-w FILE - True if the FILE exists and is writable.
+-x FILE - True if the FILE exists and is executable.
+-d FILE - True if the FILE exists and is a directory.
+-e FILE - True if the FILE exists and is a file, regardless of type (node, directory, socket, etc.).
+-f FILE - True if the FILE exists and is a regular file (not a directory or device).
+
+$0 is the scripts name
+
+practice folder
+C:\Users\LUC034\New_Folder
+
+cp copy files
+cp -r  : is the recursive function to copy subdirectories and files are copied use when copying folders
+
+cp -p  : copys preserving timestamp and ownership
+
+cp -i  : gives prompt before overwriting files
+
+
+remove files
+rm -i will ask before deleting each file. Some people will have rm aliased to do this automatically (type "alias" to check). Consider using rm -I instead, which will only ask once and only if you are trying to delete three or more files.
+
+rm -r will recursively delete a directory and all its contents (normally rm will not delete directories, while rmdir will only delete empty directories).
+
+rm -f will forcibly delete files without asking; this is mostly useful if you have rm aliased to ``rm -i'' but want to delete lots of files without confirming each one.
+
