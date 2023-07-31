@@ -9,7 +9,7 @@ import java.io.*;
     import javax.mail.internet.*;
     import javax.activation.*;
 
-public class work_stuff {
+public class lookup_stuff {
 
     public static void main(String[] args) {
         String str = "One hundred two thousand and thirty four";  //"One hundred two thousand and thirty four";

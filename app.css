@@ -1,5 +1,12 @@
 /* <!-- inline css --> */
+body {
+  background-color: lightblue;
+}
 
+h1 {
+  color: navy;
+  margin-left: 20px;
+}
 .switch {
   position: relative;
   display: inline-block;
@@ -60,4 +67,48 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+Button Padding
+.col {
+    padding-bottom: 4px;
+}
+
+
+Button Shadow
+.t-Button--primary, .t-Button--hot, .t-Button--danger, .t-Button--warning, .t-Button--success {
+    box-shadow: 5px 2px 2px rgb(0 0 0 / 15%);
+}
+
+
+Round button
+.t-Button, .a-Button {
+    border-radius: 200px;
+}
+
+Button Stuff
+.t-Button--primary, .t-Button--hot, .t-Button--danger, .t-Button--warning, .t-Button--success {
+    border: #393939; /*  border color */
+    border-style: outset; /*  border line */
+    border-radius: 200px; /* rounded */
+    text-shadow: 0 0 #3a3a3a; /*  text shadow */
+    zoom: 1.2; /*  makes bigger */
+}
+
+
+.t-Button {
+    cursor: grab; /*  change cursor */
+    display: flex; /*  change position with tool */
+}
+
+/* stick bar on reports  */
+
+#MYIR .t-fht-thead{
+  overflow: auto !important;
+}
+#MYIR2 .t-fht-thead{
+  overflow: auto !important;
+}
+#MYIR3 .t-fht-thead{
+  overflow: auto !important;
 }

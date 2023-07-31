@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html>
+<head>
+<html>
+<head>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<style>
+code {
+  font-family: Consolas,"courier new";
+  color: crimson;
+  background-color: #f1f1f1;
+  padding: 2px;
+  font-size: 105%;
+}
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+.myClass {
+  color: white;
+  background-color: DodgerBlue;
+  padding: 20px;
+  text-align: center;
+  margin: 10px;
+}
+textarea {
+  resize: auto;
+}
+hr {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+}
+form {
+  display: block;
+  margin-top: 0em;
+}
+.myDiv {
+  border: 5px outset red;
+  background-color: lightblue;    
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<hr>
+<h2>My First JavaScript</h2>
+
+<button type="button"
+onclick="document.getElementById('demo').innerHTML = Date()">
+Click me to display Date and Time.</button>
+
+<p id="demo"></p>
+<hr>
+
+<p style="font-size:30px;font-family:verdana;color:red">This is a paragraph.</p>
+<p style="font-size:11px;font-family:'Courier New';color:blue">This is another paragraph.</p>
+
+<h1>The ruby and rt elements</h1>
+<hr>
+<ruby>
+ 漢 <rt> ㄏㄢˋ </rt>
+</ruby>
+<ruby>
+漢 <rp>(</rp><rt>ㄏㄢˋ</rt><rp>)</rp>
+</ruby>
+<ruby>
+ Day <rt> Good </rt>
+</ruby>
+<hr>
+<p>
+<i> The content inside is typically displayed in italic
+<em> (emphasized text)
+<strong> (important text)
+<cite> (the title of a work)
+<dfn> (a definition term)
+<mark> (marked/highlighted text)
+<p>
+<hr>
+<h1>The form element</h1>
+
+<form action="/action_page.php">
+  <label for="fname">First name:</label>
+  <input type="text" id="fname" name="fname"><br><br>
+  <label for="lname">Last name:</label>
+  <input type="text" id="lname" name="lname"><br><br>
+  <input type="submit" value="Submit">
+</form>
+
+<p>Click the "Submit" button and the form-data will be sent to a page on the 
+server called "action_page.php".</p>
+
+<h1>Form with checkboxes</h1>
+
+<form action="/action_page.php" method="get">
+  <input type="checkbox" name="vehicle1" value="Bike">
+  <label for="vehicle1"> I have a bike</label><br>
+  <input type="checkbox" name="vehicle2" value="Car">
+  <label for="vehicle2"> I have a car</label><br>
+  <input type="checkbox" name="vehicle3" value="Boat" checked>
+  <label for="vehicle3"> I have a boat</label><br><br>
+  <input type="submit" value="Submit">
+</form>
+
+<h1>Form with radio buttons</h1>
+
+<form action="/action_page.php" method="get">
+  <input type="radio" id="html" name="fav_language" value="HTML">
+  <label for="html">HTML</label><br>
+  <input type="radio" id="css" name="fav_language" value="CSS" checked="checked">
+  <label for="css">CSS</label><br>
+  <input type="radio" id="javascript" name="fav_language" value="JavaScript">
+  <label for="javascript">JavaScript</label><br><br>
+  <input type="submit" value="Submit">
+</form>
+
+<h1>The fieldset element</h1>
+
+<form action="/action_page.php">
+ <fieldset>
+  <legend>Personalia:</legend>
+  <label for="fname">First name:</label>
+  <input type="text" id="fname" name="fname"><br><br>
+  <label for="lname">Last name:</label>
+  <input type="text" id="lname" name="lname"><br><br>
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email"><br><br>
+  <label for="birthday">Birthday:</label>
+  <input type="date" id="birthday" name="birthday"><br><br>
+  <input type="submit" value="Submit">
+ </fieldset>
+</form>
+
+<hr>
+<h1>The dl, dd, and dt elements</h1>
+
+<p>These three elements are used to create a description list:</p>
+
+<dl>
+  <dt>Coffee</dt>
+  <dd>Black hot drink</dd>
+  <dt>Milk</dt>
+  <dd>White cold drink</dd>
+</dl>
+
+<hr>
+
+<h1>The div element</h1>
+
+<div class="myDiv">
+  <h2>This is a heading in a div element</h2>
+  <p>This is some text in a div element.</p>
+</div>
+
+<p>This is some text outside the div element.</p>
+
+<hr>
+<h1>The map and area elements</h1>
+
+<p>Click on the computer, the phone, or the cup of coffee to go to a new page and read more about the topic:</p>
+
+<img src="workplace.jpg" alt="Workplace" usemap="#workmap" width="400" height="379">
+
+<map name="workmap">
+  <area shape="rect" coords="34,44,270,350" alt="Computer" href="computer.htm" download="workplace.jpg">
+  <area shape="rect" coords="290,172,333,250" alt="Phone" href="phone.htm">
+  <area shape="circle" coords="337,300,44" alt="Cup of coffee" href="coffee.htm">
+</map>
+<hr>
+<h1>The iframe element + CSS</h1>
+
+<p>An iframe with default borders:</p>
+<iframe src="/default.asp" width="100%" height="300">
+</iframe>
+
+<p>An iframe with a thin black border:</p>
+<iframe src="https://www.google.com" width="100%" height="300" style="border:1px solid black;">
+</iframe>
+
+<p>An iframe with no borders:</p>
+<iframe src="https://www.w3schools.com/tags/default.asp" width="100%" height="300" style="border:none;">
+</iframe>
+
+<h1>The iframe element</h1>
+
+<iframe src="https://www.w3schools.com" title="W3Schools Free Online Web Tutorials">
+</iframe>
+
+<iframe src="https://www.w3schools.com/tags/default.asp" title="Reference">
+</iframe>
+
+<hr>
+<h1>The object element</h1>
+
+<object data="snippet.html" width="500" height="200">
+</object>
+
+<hr>
+<h1>The output element</h1>
+
+<form oninput="x.value=parseInt(a.value)+parseInt(b.value)">
+<input type="range" id="a" value="50">
++<input type="number" id="b" value="25">
+=<output name="x" for="a b"></output>
+<label for="file">Downloading progress:</label>
+<progress id="file" value=x max="100"> 32% </progress>
+</form>
+
+<p><strong>Note:</strong> The output element is not supported in Edge 12 (or earlier).</p>
+
+<hr>
+<h1>The option element</h1>
+
+<label for="cars">Choose a car:</label>
+
+<select id="cars">
+  <option value="volvo">Volvo</option>
+  <option value="saab">Saab</option>
+  <option value="opel">Opel</option>
+  <option value="audi">Audi</option>
+</select>
+
+<hr>
+<h1>The optgroup element</h1>
+
+<p>The optgroup tag is used to group related options in a drop-down list:</p>
+
+<form action="/action_page.php">
+  <label for="cars">Choose a car:</label>
+  <select name="cars" id="cars">
+    <optgroup label="Swedish Cars">
+      <option value="volvo">Volvo</option>
+      <option value="saab">Saab</option>
+    </optgroup>
+    <optgroup label="German Cars">
+      <option value="mercedes">Mercedes</option>
+      <option value="audi">Audi</option>
+    </optgroup>
+  </select>
+  <br><br>
+  <input type="submit" value="Submit">
+</form>
+
+<hr>
+<h1>The datalist element</h1>
+
+<form action="/action_page.php" method="get">
+  <label for="browser">Choose your browser from the list:</label>
+  <input list="browsers" name="browser" id="browser">
+  <datalist id="browsers">
+    <option value="Edge">
+    <option value="Firefox">
+    <option value="Chrome">
+    <option value="Opera">
+    <option value="Safari">
+  </datalist>
+  <input type="submit">
+</form>
+
+<p><strong>Note:</strong> The datalist tag is not supported in Safari 12.0 (or earlier).</p>
+
+<hr>
+<h1>The progress element</h1>
+
+<label for="file">Downloading progress:</label>
+<progress id="file" value="32" max="100"> 32% </progress>
+
+<hr>
+<h1>The q element</h1>
+
+<p>WWF's goal is to: 
+<q>Build a future where people live in harmony with nature.</q>
+We hope they succeed.</p>
+
+<p><s>Only 50 tickets left!</s></p>
+<p>SOLD OUT!</p>
+
+<hr>
+<h1>The sub and sup elements</h1>
+
+<p>This text contains <sub>subscript</sub> text.</p>
+<p>This text contains <sup>superscript</sup> text.</p>
+
+<hr>
+<h1>The textarea element</h1>
+
+<form action="/action_page.php">
+  <p><label for="w3review">Review of W3Schools:</label></p>
+  <textarea id="w3review" name="w3review" rows="4" cols="50">At w3schools.com you will learn how to make a website. They offer free tutorials in all web development technologies.</textarea>
+  <br>
+  <input type="submit" value="Submit">
+</form>
+
+<p>Click the "Submit" button and the form-data will be sent to a page on the 
+server called "action_page.php".</p>
+
+<hr>
+<h1>The code element + CSS</h1>
+
+<p>The HTML <code>button</code> tag defines a clickable button.</p>
+<p>The CSS <code>background-color</code> property defines the background color of an element.</p>
+<video width="320" height="240" controls>
+  <source src="forrest_gump.mp4" type="video/mp4">
+  <source src="forrest_gump.ogg" type="video/ogg">
+  <track src="fgsubtitles_en.vtt" kind="subtitles" srclang="en" label="English">
+  <track src="fgsubtitles_no.vtt" kind="subtitles" srclang="no" label="Norwegian">
+</video>
+
+<hr>
+<h1>Table with Collapsed Borders</h1>
+<caption>Monthly savings</caption>
+<table style="height:200px">
+  <thead>
+  <tr style="background-color:#FF0000;vertical-align:top">
+    <th>Month</th>
+    <th>Savings</th>
+  </tr>
+      </thead>
+      <tbody>
+  <tr  style="vertical-align:bottom">
+    <td>January</td>
+    <td>$100</td>
+  </tr>
+  <tr>
+    <td>February</td>
+    <td>$80</td>
+  </tr>
+  <tr>
+    <td>March</td>
+    <td>$60</td>
+  </tr>
+  <tr>
+    <td>April</td>
+    <td>$70</td>
+  </tr>
+  <tr>
+    <td>May</td>
+    <td>$80</td>
+  </tr>
+  <tr>
+    <td>June</td>
+    <td>$50</td>
+  </tr>
+  <tbody>
+  <tfoot>
+    <tr>
+      <td>Sum</td>
+      <td>$440</td>
+    </tr>
+  </tfoot>
+</table>
+
+<h1>Table Headers</h1>
+
+<h2>Horizontal headers:</h2>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Email</th>
+    <th colspan="2">Phone</th>    
+  </tr>
+  <tr>
+    <td>John Doe</td>
+    <td>john.doe@example.com</td>    
+    <td>123-45-678</td>
+    <td>212-00-546</td>  
+  </tr>
+</table>
+
+<h2>Vertical headers:</h2>
+<table>
+  <tr>
+    <th>Name:</th>
+    <td>John Doe</td>
+  </tr>
+  <tr>
+    <th>Email:</th>  
+    <td>john.doe@example.com</td>      
+  </tr>  
+  <tr>
+    <th rowspan="2">Phone:</th>
+    <td>123-45-678</td>
+  </tr>
+  <tr>
+    <td>212-00-546</td>
+  </tr>
+</table>
+
+<hr>
+<h1>The ul element</h1>
+
+<ul>
+  <li>Coffee</li>
+  <li>Tea</li>
+  <li>Milk</li>
+</ul>
+
+<hr>
+<h1>The var element</h1>
+
+<p>The area of a triangle is: 1/2 x <var>b</var> x <var>h</var>, where <var>b</var> is the base, and <var>h</var> is the vertical height.</p>
+<h1>The svg element</h1>
+
+<svg height="130" width="500">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"
+      style="stop-color:rgb(255,255,0);stop-opacity:1" />
+      <stop offset="100%"
+      style="stop-color:rgb(255,0,0);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="100" cy="70" rx="85" ry="55" fill="url(#grad1)" />
+  <text fill="#ffffff" font-size="45" font-family="Verdana"
+  x="50" y="86">SVG</text>
+Sorry, your browser does not support inline SVG.
+</svg>
+
+<hr>
+<h1>The textarea element</h1>
+
+<form action="/action_page.php">
+  <p><label for="w3review">Review of W3Schools:</label></p>
+  <textarea id="w3review" name="w3review" rows="4" cols="50" autofocus="autofocus">At w3schools.com you will learn how to make a website. They offer free tutorials in all web development technologies.</textarea>
+  <br>
+  <input type="submit" value="Submit">
+</form>
+
+<p>Click the "Submit" button and the form-data will be sent to a page on the 
+server called "action_page.php".</p>
+
+<hr>
+<h1>The wbr element</h1>
+
+<p>Try to shrink the browser window, to view how the very long word in 
+the paragraph below will break:</p>
+
+<p>This is a veryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryveryvery<wbr>longwordthatwillbreakatspecific<wbr>placeswhenthebrowserwindowisresized.</p>
+
+<p><b>Note:</b> The wbr element is not supported in Internet Explorer 11 (or earlier).</p>
+
+<hr>
+<h1>The template Element</h1>
+
+<p>Click the button below to display the hidden content from the template element.</p>
+
+<button onclick="showContent()">Show hidden content</button>
+
+<template>
+  <h2>Flower</h2>
+  <img src="img_white_flower.jpg" width="214" height="204">
+</template>
+
+<script>
+function showContent() {
+  var temp = document.getElementsByTagName("template")[0];
+  var clon = temp.content.cloneNode(true);
+  document.body.appendChild(clon);
+}
+</script>
+
+<hr>
+<h1>The template Element</h1>
+
+<p>This example fills the web page with one new div element for each item in an array.</p>
+<p>The HTML code of each div element is inside the template element.</p>
+
+<p>Click the button below to display the hidden content from the template element.</p>
+
+<button onclick="showContent()">Show hidden content</button>
+
+<template>
+  <div class="myClass">I like: </div>
+</template>
+
+<script>
+var myArr = ["Audi", "BMW", "Ford", "Honda", "Jaguar", "Nissan"];
+
+function showContent() {
+  var temp, item, a, i;
+  temp = document.getElementsByTagName("template")[0];
+  //get the div element from the template:
+  item = temp.content.querySelector("div");
+  //for each item in the array:
+  for (i = 0; i < myArr.length; i++) {
+    //Create a new node, based on the template:
+    a = document.importNode(item, true);
+    //Add data from the array:
+    a.textContent += myArr[i];
+    //append the new node wherever you like:
+    document.body.appendChild(a);
+  }
+}
+</script>
+<html>
+<body>
+<hr>
+<h1>The Main Languages of the Web</h1>
+
+<p>HTML is the standard markup language for creating Web pages. HTML describes the structure of a Web page, and consists of a series of elements. HTML elements tell the browser how to display the content.</p>
+
+<hr>
+
+<p>CSS is a language that describes how HTML elements are to be displayed on screen, paper, or in other media. CSS saves a lot of work, because it can control the layout of multiple web pages all at once.</p>
+
+<hr>
+
+<p>JavaScript is the programming language of HTML and the Web. JavaScript can change HTML content and attribute values. JavaScript can change CSS. JavaScript can hide and show HTML elements, and more.</p>
+
+</body>
+
+<body>
+<hr><br>
+<link href=' http://fonts.googleapis.com/css?family=Droid+Sans' rel='stylesheet' type='text/css'>
+<hr><br>
+<strong><p style="color:red;font-size:14px">There has been &P0_COMPLAINT_COUNT. complaint(s) entered today.</p></strong> 
+<hr><br>
+<strong><p style="color:black;font-size:14px;font-family:Times New Roman">       
+This Report displays data from the different sources as they are but comparisons between fields are not case sensitive. Oracle Finacial cost of 0 should result in an Oracle Staus being retired. The Henrico Cost contains the original cost of the piece of equipment. 
+</p></strong>
+<hr><br>
+<a> <base>https://www.w3schools.com/tags/default.asp </a>
+<abbr> SETX </abbr>
+<hr><br>
+<address> <a>luc034@henrico.us</a> </address>
+<body> 
+<p>
+    This is the report <b> Asset Reconciliation <bdi>report </bdi> I wonder what bdo <bdo> does?</bdo> this is <big>BIG</big> <br> <blockquote> Hello I am a block quote </blockquote>  </b> 
+    <button> click </button>
+    <canvas> Draw here </canvas>
+    <caption> Closed captions brought to you by </caption> <center> Pheonix </center>
+    <cite> google </cite>
+    <br>
+    <code> select * from table where condition = condition </code>
+    <br>
+    <col> "font:14px"
+    <colgroup>
+        Is this different size? </colgroup>
+    <data>	Adds a machine-readable translation of a given content </data>
+    <datalist>	Specifies a list of pre-defined options for input controls </datalist>
+    <dd>	Defines a description/value of a term in a description list </dd>
+    <del>	Defines text that has been deleted from a document </del>
+    <details>	Defines additional details that the user can view or hide </details>
+    <dfn>	Specifies a term that is going to be defined within the content </dfn>
+    <dialog>	Defines a dialog box or window </dialog>
+    </p>
+<hr><br>
+     <head>	Contains metadata/information for the document </head>
+    <header>	Defines a header for a document or section </header>
+    <hr>	Defines a thematic change in the content 
+    <html>	Defines the root of an HTML document </html>
+    <i>	Defines a part of text in an alternate voice or mood </i>
+    <iframe>	Defines an inline frame </iframe>
+    <img>	Defines an image 
+    <input>	Defines an input control 
+    <ins>	Defines a text that has been inserted into a document </ins>
+    <p>
+    <kbd>	Defines keyboard input </kbd>
+    <label>	Defines a label for an <input> element </label> 
+    <legend>	Defines a caption for a <fieldset> element </fieldset> </legend>
+    <li>	Defines a list item 
+        this is the list
+</p>
+<hr><br>
+        <div>	Defines a section in a document </div>
+    <dl>	Defines a description list </dl>
+    <dt>	Defines a term/name in a description list </dt>
+    <em>	Defines emphasized text </em>
+    <embed>	Defines a container for an external application <br>
+    <fieldset>	Groups related elements in a form </fieldset>
+    <figcaption>	Defines a caption for a <figure> element which figure Specifies self-contained content </figure> </figcaption>
+    <font> "color:black;font-size:14px;font-family:Times New Roman" </font> 
+    
+    <hr><br>
+    <footer> a footer inside a footer</footer>
+    <form>	Defines an HTML form for user input </form>
+    <frame>	Not supported in HTML5.
+Defines a window (a frame) in a frameset 
+    <frameset>	Not supported in HTML5.
+        Defines a set of frames </frameset>
+   
+   <hr><br>
+    <link>	Defines the relationship between a document and an external resource (most used to link to style sheets) CSS goes here? <a> <base>https://www.w3schools.com/tags/default.asp </a>
+    <main>	Specifies the main content of a document </main>
+    <map>	Defines an image map </map>
+    <mark>	Defines marked/highlighted text </mark>
+    <meta>	Defines metadata about an HTML document 
+    <meter>	Defines a scalar measurement within a known range (a gauge) </meter>
+    <nav>	Defines navigation links </nav>
+    <noframes>	Not supported in HTML5.
+        Defines an alternate content for users that do not support frames </noframes>
+    <noscript>	Defines an alternate content for users that do not support client-side scripts </noscript>
+    <object>	Defines a container for an external application  <param>	Defines a parameter for an object  </object>
+    <ol>	Defines an ordered list </ol>
+    <optgroup>	Defines a group of related options in a drop-down list 
+    </optgroup>
+    <hr><br>
+    <option>	Defines an option in a drop-down list </option>
+    <output>	Defines the result of a calculation 2+2= args.artlbl args.copycss </output>
+    <picture>	Defines a container for multiple image resources </picture>
+    <object data="horse.wav">
+  <param name="autoplay" value="true">
+</object>
+<hr><br>
+    
+    
+</body>
+    <details>
+ <ul> folders </ul>
+       <dir>	Not supported in HTML5. Use <ul> instead.
+       Defines a directory list </ul> </dir> 
+</details>
+
+</html>
+
+
+
+body { background-color: gray; }
+h1 {
+  color: white;
+  font-size: 2.5em;
+}
+<h1>WHAT CARRER SHOULD YOU HAVE ?</h1>
+
+
+body { background-color: gray; }
+h1 {
+  color: white;
+  font-size: 2.5em;
+  -webkit-text-stroke: 2px black;
+}
+<h1>WHAT CARRER SHOULD YOU HAVE ?</h1>
+
+http://jsfiddle.net/jpjbk1z7/
+
+
+For a smooth outside stroke emulated by text shadow, use the following 8-axis shadow:
+text-shadow:
+    -1px -1px 0 #000,
+     0   -1px 0 #000,
+     1px -1px 0 #000,
+     1px  0   0 #000,
+     1px  1px 0 #000,
+     0    1px 0 #000,
+    -1px  1px 0 #000,
+    -1px  0   0 #000;
+
+For customisation, you can use this SASS mixin instead (although changing the size does have side effects on rendering):
+
+@mixin stroke($color: #000, $size: 1px) {
+  text-shadow:
+    -#{$size} -#{$size} 0 $color,
+     0        -#{$size} 0 $color,
+     #{$size} -#{$size} 0 $color,
+     #{$size}  0        0 $color,
+     #{$size}  #{$size} 0 $color,
+     0         #{$size} 0 $color,
+    -#{$size}  #{$size} 0 $color,
+    -#{$size}  0        0 $color;
+}
+
+
+h1 {
+  color: #00ff01;
+  font-size: 3em;
+  -webkit-text-stroke: 5px black;
+}
+
+.fix-stroke {
+   paint-order: stroke fill;
+}
+<h1>the default often is ugly</h1>
+<h1 class="fix-stroke">paint-order: stroke fill 😀</h1>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.t-fht-thead{
+  overflow: auto !important;
+}
+</style>
+</head>
+<body>
+
+<div class="t-fht-thead">
+  <h2>Report</h2>
+  <p>This is the top scroll bar for Interactive Reports.</p>
+</div>
+
+
+</body>
+</html>
+
+#MYIR .t-fht-thead{
+  overflow: auto !important;
+}
+#MYIR2 .t-fht-thead{
+  overflow: auto !important;
+}
+#MYIR3 .t-fht-thead{
+  overflow: auto !important;
+}
+
+<div class="t-fht-thead" id="MYIR">
+		overflow: auto !important;
+      </div>
+
+<div class="t-Body-content" id="t_Body_content">
+      #SUCCESS_MESSAGE##NOTIFICATION_MESSAGE##GLOBAL_NOTIFICATION#
+      <div class="t-Body-info" id="t_Body_info">
+        #REGION_POSITION_02#
+      </div>
+	  
+	 <div class="t-Card-body">
+        <div class="t-Card-desc">#CARD_TEXT#</div>
+        <div class="t-Card-info">#CARD_SUBTEXT#</div>
+      </div>
+	  
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.city {
+  background-color: tomato;
+  color: white;
+  border: 2px solid black;
+  margin: 20px;
+  padding: 20px;
+}
+</style>
+</head>
+<body>
+
+<div class="city">
+  <h2>London</h2>
+  <p>London is the capital of England.</p>
+</div>
+
+<div class="city">
+  <h2>Paris</h2>
+  <p>Paris is the capital of France.</p>
+</div>
+
+<div class="city">
+  <h2>Tokyo</h2>
+  <p>Tokyo is the capital of Japan.</p>
+</div>
+
+</body>
+</html>
+
+
+< button class = "t-Button t-Button--icon t-Button--header t-Button--headerTree is-active" 
+id = "t_Button_navControl" 
+type = "button" 
+aria-controls = "t_TreeNav" 
+aria-expanded = "true" >
+
+< button class = "t-Button t-Button--icon t-Button--header t-Button--headerTree is-active" 
+aria-label = "Expand / Collapse Navigation" 
+title = "Expand / Collapse Navigation" 
+id = "t_Button_navControl" 
+type = "button" 
+aria-controls = "t_TreeNav" 
+aria-expanded = "true" >
+
+<span class="t-Header-controlsIcon" aria-hidden="true">
+
+table.uReport > tbody > tr > td {
+    border: none;
+    border-bottom: 1px solid #EEE;
+    padding: 8px 8px 8px 0;
+    font: normal 12px/16px Arial, sans-serif;
+    color: #1a1a1a;
+}
+
+
+<strong><p style="color:black;font-size:14px;font-family:Times New Roman">       
+This Report displays data from the different sources as they are but comparisons between fields are not case sensitive. Oracle Finacial cost of 0 should result in an Oracle Staus being retired. The Henrico Cost contains the original cost of the piece of equipment. 
+</p></strong>
