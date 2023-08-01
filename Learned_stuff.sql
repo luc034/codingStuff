@@ -1,3 +1,63 @@
+-- spooling
+set pagesize 0
+set newpage none
+set feedback off
+set verify off
+set linesize 32000
+set trimspool on
+
+spool test1.sql
+select 'start test2.sql ' || designation  from tbl_destination ;
+spool off
+
+rem ===== sql-script test2.sql =========
+spool &1.xls
+select  to_char(emp_no) || chr(9) || emp_name || chr(9)
+  from employee 
+ where Emp_Designation = '&1'
+;
+spool off
+rem =============================  
+rem =========== procedure test2 ================
+create or replace
+procedure test2 (p_param number) is
+
+begin
+             dbms_output.enable (1000000);
+ 
+             dbms_output.put_line('A' || chr(9) || 'B' || chr(9) || 'C' ) ;
+             FOR i_rec in (select a,b.c from xyz where a = p_param) LOOP
+                 dbms_output.put_line (to_char(a) || chr(9) || b || chr(9) || c ) ;
+             END LOOP ;
+
+end ;
+/
+REM ====================================================      
+
+spool your_file.txt
+set serveroutput on
+
+declare
+ cursor c_emp is 
+ select empno, ename
+   from emp;
+
+begin
+  for r_emp in c_emp loop
+    dbms_output.put_line(r_emp.ename || ' ' || r_emp.empno);
+  end loop;
+
+end;
+/
+spool off
+
+spool gretzky.html;
+execute hockey.pass("Gretzky");
+execute owa_util.showpage;
+
+
+
+
 -- cursor vs record race using VARRARY 
 DECLARE
     TYPE r_time_trial IS RECORD

@@ -380,3 +380,28 @@ document.getElementById('P3_item2').textContent = $v('P3_item')
 //<textarea id= "text" name= "text" style= "border-width: medium;">This is HTML</textarea>
 //<button id= "btn" onclick= "settextValue()">Set Textarea Value</button>
 //<textarea id= "text" style= "border-width: medium;">Website</textarea>
+
+
+javascript:deleteRow(#ITEM#);
+
+
+
+function deleteRow(value){
+
+    if (confirm('Would you like to delete this email?')) {
+
+        // Delete it!
+
+        apex.item('P92_DELETE_ID').setValue(value);
+        //$s('P92_DELETE_ID',value);
+        
+        apex.event.trigger('#P92_DELETE_ID', 'Link_Call', '');
+        //apex.event.trigger('#P92_DELETE_ID', 'change', '');
+
+    } else {
+
+        // Do nothing!
+
+    }
+
+}
