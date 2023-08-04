@@ -74,7 +74,7 @@ BEGIN
                            'Error retrieving DATA'
                         || CHR (13)
                         || '<br>'
-                        || 'Equipment ID: '
+                        || ' ID: '
                         || NVL ( :p1_item, 'Is NULL')
                         || CHR (13)
                         || '<br>'
@@ -1154,8 +1154,8 @@ SELECT c.*, c.CODE
   FROM codes c
  WHERE NOT EXISTS
            (SELECT 1
-              FROM MMMA_MANAGEMENT_AREAS rt
-             WHERE rt.MMMA_ID = c.code
+              FROM TABLE_NAME rt
+             WHERE rt.ID = c.code
              FETCH FIRST 1 ROWS ONLY)                                              -- connecting to table, dont need
 ;
 
@@ -1167,8 +1167,8 @@ SELECT DISTINCT c.COLUMN_VALUE
                                       84719)) c
  WHERE NOT EXISTS
            (SELECT 1
-              FROM MMMA_MANAGEMENT_AREAS rt
-             WHERE rt.MMMA_ID = c.COLUMN_VALUE
+              FROM TABLE_NAME rt
+             WHERE rt.ID = c.COLUMN_VALUE
              FETCH FIRST 1 ROWS ONLY)                                              -- connecting to table, dont need
 ;
 SELECT COLUMN_VALUE AS val FROM TABLE (sys.ku$_vcnt ('one', 'two', 'three'));
@@ -1448,7 +1448,7 @@ IS
 
 BEGIN
 
-  RETURN 'The Employee details for the ID '||obj_emp_id||' is Name: '||
+  RETURN 'The details for the ID '||obj_emp_id||' is Name: '||
 
   obj_emp_name;
 
@@ -1668,11 +1668,10 @@ AS
     END get_db_link;
 
     FUNCTION column_creator ( -- creates columns for query can get all column names and/or add new columns to query. multiple ways table can be submitted: if need a specific schema place '.' in between table name and schema, if using a table reference name must include ' ' in between table name and ref name, if using multiple tables must place ',' with no spaces in between tables
-                             p_table           VARCHAR2, -- needs table to gather column names, for multiple tables must be in format of 'schema.tablename ref_name,schema2.tablename2 ref_name2' example: 'CNTL.CNTL_DOCUMENTATION AA,CNTL.CNTL_DOCUMENTATION CD' only leave spaces in between table name and reference name or 'table_name1,table_name2'
+                             p_table           VARCHAR2, -- needs table to gather column names, for multiple tables must be in format of 'schema.tablename ref_name,schema2.tablename2 ref_name2' example: 'TBL.TABLE_NAME AA, TBL.TABLE_NAME2 CD' only leave spaces in between table name and reference name or 'table_name1,table_name2'
                              p_column          VARCHAR2 DEFAULT NULL, -- keep column null to return list of all columns in table otherwise enter desired columns in string.
-                             p_env_column      VARCHAR2 DEFAULT NULL, -- adds a column for environment two ways ex1: ' as ENV' and put environemnt in p_env or ex2: '''SOC'' as ENV' and leave p_env blank
-                             p_new_pk_column   VARCHAR2 DEFAULT NULL, -- for adding new columns specifically pk ex: 'REPLACE (ELAPSED_TIME, '.') || TO_CHAR (VIEW_DATE, 'MMDDYYYYHH24MISS') as view_pk'
-                             p_env             VARCHAR2 DEFAULT NULL) -- add environment either 'SOC'  'FIN'   'CAM' or leave null
+                             p_new_pk_column   VARCHAR2 DEFAULT NULL) -- for adding new columns specifically pk ex: 'REPLACE (ELAPSED_TIME, '.') || TO_CHAR (VIEW_DATE, 'MMDDYYYYHH24MISS') as view_pk'
+                             
         RETURN VARCHAR2
     IS              -- p_table, p_column, p_env_column, p_new_pk_column, p_env
         --DECLARE  -- for checking code in editor comment out return and replace with DBMS_OUTPUT.put_line (v_sql);
@@ -1693,8 +1692,7 @@ AS
 
         -- checks for columns = * and if a new column is being added that isn't in the table
         IF     v_columns = '*'
-           AND (   p_env_column IS NOT NULL
-                OR p_new_pk_column IS NOT NULL
+           AND ( p_new_pk_column IS NOT NULL
                 OR (INSTR (p_table, ' ', 1) > 0))
         THEN
             v_columns := NULL; -- nullifies v_columns so that it can retrieve all column names
@@ -1735,20 +1733,6 @@ AS
             v_columns := SUBSTR (v_columns, 3);
         END IF;
 
-        -- adds Envrionment column to columns list
-        IF     p_env_column IS NOT NULL
-           AND p_env IS NOT NULL
-           AND p_env_column NOT LIKE '''SOC''' || '%'
-           AND p_env_column NOT LIKE '''FIN''' || '%'
-           AND p_env_column NOT LIKE '''CAM''' || '%'
-        THEN
-            v_columns :=
-                '''' || p_env || ''' ' || p_env_column || ', ' || v_columns;
-        ELSIF p_env_column IS NOT NULL
-        THEN
-            v_columns := p_env_column || ', ' || v_columns;
-        END IF;
-
         -- adds PK column to columns list or any extra column needed
         IF p_new_pk_column IS NOT NULL
         THEN
@@ -1760,29 +1744,19 @@ AS
 
     FUNCTION env_query_builder ( -- created to easily make queries unioned in different environments. send everything in as strings
                                 p_table           VARCHAR2, -- only required parameter, if function recieves only one parameter it will return a select statement from that table with all columns associated.
-                                p_env             VARCHAR2 DEFAULT NULL, -- FIN, SOC, CAM, and ALL. ALL will return a union of all 3.
                                 p_column          VARCHAR2 DEFAULT NULL, -- keep column null to return list of all columns in table otherwise enter desired columns in string.
                                 p_condition       VARCHAR2 DEFAULT NULL, -- place entire condition in string, when using quotes then use two ', ex: 'ID = ''111222'''
-                                p_env_column      VARCHAR2 DEFAULT NULL, -- adds a column for environment two ways ex1: ' as ENV' and put environemnt in p_env or ex2: '''SOC'' as ENV' and prefer to leave p_env blank in that scenario but will still work
                                 p_new_pk_column   VARCHAR2 DEFAULT NULL) -- for adding a new columns specifically pk ex: 'REPLACE (ELAPSED_TIME, '.') || TO_CHAR (VIEW_DATE, 'MMDDYYYYHH24MISS') as view_pk'
         RETURN VARCHAR2 -- returns an sql statement primarily used in apex PL/SQL function body but can be used in editor to build most queries
     IS -- p_table, p_env, p_column, p_condition, p_env_column, p_new_pk_column
- --db            VARCHAR2 (200); --  := COMN.CNTL_GENERAL_PKG.CNTL_GET_DB_LINK(p_env)
         v_columns     VARCHAR2 (4000) := p_column;
         v_sql         VARCHAR2 (12000);
         v_table       VARCHAR2 (4000) := p_table;
         v_condition   VARCHAR2 (4000) := p_condition;
         v_temp        VARCHAR2 (4000);
-        v_table_env   VARCHAR2 (1000) DEFAULT NULL;
         first_table   VARCHAR2 (1000);
     BEGIN
-        -- checks for default column value: null. if p_column is null then returns all columns in table
-        IF     p_env != 'ALL'
-           AND (   (p_column IS NULL)
-                OR (INSTR (v_table, ' ', 1) > 0)
-                OR (p_env_column IS NOT NULL)
-                OR (p_new_pk_column IS NOT NULL))
-        THEN
+
             v_columns := NULL;
 
             IF INSTR (v_table, ',', 1) = 0
@@ -1790,9 +1764,7 @@ AS
                 v_columns :=
                     COMN_QRY_PKG.COLUMN_CREATOR (v_table,
                                     v_columns,
-                                    p_env_column,
-                                    p_new_pk_column,
-                                    p_env);
+                                    p_new_pk_column);
             ELSIF INSTR (v_table, ',', 1) > 0
             THEN
                 v_temp := v_table;
@@ -1804,35 +1776,8 @@ AS
                         v_columns :=
                                COMN_QRY_PKG.COLUMN_CREATOR (v_temp,
                                                p_column,
-                                               p_env_column,
-                                               p_new_pk_column,
-                                               p_env)
+                                               p_new_pk_column)
                             || v_columns;               -- trim (both '*' from
-
-                        IF     (p_env = 'SOC' OR p_env = 'FIN')
-                           --    p_env != 'CAM'
-                           --    AND TRIM (BOTH ' ' FROM p_env) != ''
-                           AND p_env IS NOT NULL
-                           AND INSTR (v_table, ' ', 1) = 0
-                        THEN
-                            v_table_env :=
-                                   v_temp
-                                || '@'
-                                || comn_qry_pkg.get_db_link (p_env)
-                                || v_table_env;
-                        ELSIF     (p_env = 'SOC' OR p_env = 'FIN')
-                              AND p_env IS NOT NULL
-                              AND INSTR (v_table, ' ', 1) > 0
-                        THEN
-                            v_table_env :=
-                                   REPLACE (
-                                       REGEXP_SUBSTR (v_temp, '.[^ ]+.'),
-                                       ' ',
-                                       '')
-                                || '@'
-                                || comn_qry_pkg.get_db_link (p_env)
-                                || v_table_env;
-                        END IF;
 
                         EXIT;
                     -- when multiple tables exist goes into here, trims one off, puts the single table in column_creator, and goes back through loop
@@ -1847,80 +1792,11 @@ AS
                             || ', '
                             || COMN_QRY_PKG.COLUMN_CREATOR (first_table,
                                                p_column,
-                                               NULL,
-                                               NULL,
-                                               p_env); -- calls column_creator with first table in list
-
-                        IF     (p_env = 'SOC' OR p_env = 'FIN')
-                           AND p_env IS NOT NULL
-                           AND INSTR (v_table, ' ', 1) = 0
-                        THEN
-                            v_table_env :=
-                                   v_table_env
-                                || ', '
-                                || v_temp
-                                || '@'
-                                || comn_qry_pkg.get_db_link (p_env);
-                        ELSIF     (p_env = 'SOC' OR p_env = 'FIN')
-                              AND p_env IS NOT NULL
-                              AND INSTR (v_table, ' ', 1) > 0
-                        THEN
-                            v_table_env :=
-                                   v_table_env
-                                || ', '
-                                || REPLACE (
-                                       REGEXP_SUBSTR (v_temp, '.[^ ]+.'),
-                                       ' ',
-                                       '')
-                                || '@'
-                                || comn_qry_pkg.get_db_link (p_env);
-                        END IF;
+                                               NULL); -- calls column_creator with first table in list
                     END IF;
                 END LOOP;
             END IF;
-        END IF;
-
-        -- checks environment input, if env is 'ALL' then unions the table from all 3 environments using recursive call. if p_env is SOC or FIN then gets db_link and concats to table
-        IF p_env IS NOT NULL
-        THEN
-            IF p_env = 'ALL'
-            THEN
-                v_sql :=
-                       COMN_QRY_PKG.ENV_QUERY_BUILDER (v_table,
-                                          'SOC',
-                                          v_columns,
-                                          p_condition,
-                                          p_env_column,
-                                          p_new_pk_column)
-                    || ' UNION '
-                    || COMN_QRY_PKG.ENV_QUERY_BUILDER (v_table,
-                                          'FIN',
-                                          v_columns,
-                                          p_condition,
-                                          p_env_column,
-                                          p_new_pk_column)
-                    || ' UNION '
-                    || COMN_QRY_PKG.ENV_QUERY_BUILDER (v_table,
-                                          'CAM',
-                                          v_columns,
-                                          p_condition,
-                                          p_env_column,
-                                          p_new_pk_column);
-                RETURN v_sql;
-            ELSIF (p_env = 'SOC' OR p_env = 'FIN')
-            THEN
-                IF     INSTR (p_table, ',', 1) > 0
-                   AND INSTR (p_table, ' ', 1) > 0
-                THEN
-                    v_table := v_table_env;
-                ELSIF     INSTR (p_table, ',', 1) = 0
-                      AND INSTR (p_table, ' ', 1) = 0
-                THEN
-                    v_table := v_table || '@' || comn_qry_pkg.get_db_link (p_env);
-                END IF;
-            END IF;
-        END IF;
-
+            
         -- if condition is null then doesn't add where condition otherwise adds where condition
         IF p_condition IS NULL
         THEN
@@ -1940,6 +1816,7 @@ AS
 
 END comn_qry_pkg;
 /
+
 
 CREATE OR REPLACE PUBLIC SYNONYM COMN_QRY_PKG FOR COMN.COMN_QRY_PKG
 /
@@ -1961,17 +1838,13 @@ AS
     FUNCTION column_creator ( -- creates columns for query can get all column names and/or add new columns to query. multiple ways table can be submitted: if need a specific schema place '.' in between table name and schema, if using a table reference name must include ' ' in between table name and ref name, if using multiple tables must place ',' with no spaces in between tables
                              p_table           VARCHAR2, -- needs table to gather column names, for multiple tables must be in format of 'schema.tablename ref_name,schema2.tablename2 ref_name2' example: 'CNTL.CNTL_DOCUMENTATION AA,CNTL.CNTL_DOCUMENTATION CD' only leave spaces in between table name and reference name or 'table_name1,table_name2'
                              p_column          VARCHAR2 DEFAULT NULL, -- keep column null to return list of all columns in table otherwise enter desired columns in string.
-                             p_env_column      VARCHAR2 DEFAULT NULL, -- adds a column for environment two ways ex1: ' as ENV' and put environemnt in p_env or ex2: '''SOC'' as ENV' and leave p_env blank
-                             p_new_pk_column   VARCHAR2 DEFAULT NULL, -- for adding new columns specifically pk ex: 'REPLACE (ELAPSED_TIME, '.') || TO_CHAR (VIEW_DATE, 'MMDDYYYYHH24MISS') as view_pk'
-                             p_env             VARCHAR2 DEFAULT NULL) -- add environment either 'SOC'  'FIN'   'CAM' or leave null
+                             p_new_pk_column   VARCHAR2 DEFAULT NULL) -- for adding new columns specifically pk ex: 'REPLACE (ELAPSED_TIME, '.') || TO_CHAR (VIEW_DATE, 'MMDDYYYYHH24MISS') as view_pk'
         RETURN VARCHAR2;
 
     FUNCTION env_query_builder ( -- created to easily make queries unioned in different environments. send everything in as strings
                                 p_table           VARCHAR2, -- only required parameter, if function recieves only one parameter it will return a select statement from that table with all columns associated.
-                                p_env             VARCHAR2 DEFAULT NULL, -- FIN, SOC, CAM, and ALL. ALL will return a union of all 3.
                                 p_column          VARCHAR2 DEFAULT NULL, -- keep column null to return list of all columns in table otherwise enter desired columns in string.
                                 p_condition       VARCHAR2 DEFAULT NULL, -- place entire condition in string, when using quotes then use two ', ex: 'ID = ''111222'''
-                                p_env_column      VARCHAR2 DEFAULT NULL, -- adds a column for environment two ways ex1: ' as ENV' and put environemnt in p_env or ex2: '''SOC'' as ENV' and prefer to leave p_env blank in that scenario but will still work
                                 p_new_pk_column   VARCHAR2 DEFAULT NULL) -- for adding a new columns specifically pk ex: 'REPLACE (ELAPSED_TIME, '.') || TO_CHAR (VIEW_DATE, 'MMDDYYYYHH24MISS') as view_pk'
         RETURN VARCHAR2; -- returns an sql statement primarily used in apex PL/SQL function body but can be used in editor to build most queries
 
