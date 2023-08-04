@@ -1,0 +1,207 @@
+Useful functions
+_____________________________________________________________________________________________
+String/Char Functions
+_____________________________________________________________________________________________
+ASCII
+ASCIISTR
+CHR
+COMPOSE
+CONCAT
+Concat with ||
+CONVERT
+DECOMPOSE
+DUMP
+INITCAP
+INSTR
+INSTR2
+INSTR4
+INSTRB
+INSTRC
+LENGTH
+LENGTH2
+LENGTH4
+LENGTHB
+LENGTHC
+LOWER
+LPAD
+LTRIM
+NCHR
+REGEXP_INSTR
+REGEXP_REPLACE
+REGEXP_SUBSTR
+REPLACE
+RPAD
+RTRIM
+SOUNDEX
+SUBSTR
+TRANSLATE
+TRIM
+UPPER
+VSIZE
+_____________________________________________________________________________________________
+Numeric/Math Functions
+_____________________________________________________________________________________________
+ABS
+ACOS
+ASIN
+ATAN
+ATAN2
+AVG
+BITAND
+CEIL
+COS
+COSH
+COUNT
+EXP
+FLOOR
+GREATEST
+LEAST
+LN
+LOG
+MAX
+MEDIAN
+MIN
+MOD
+POWER
+REGEXP_COUNT
+REMAINDER
+ROUND (numbers)
+ROWNUM
+SIGN
+SIN
+SINH
+SQRT
+SUM
+TAN
+TANH
+TRUNC (numbers)
+_____________________________________________________________________________________________
+Date/Time Functions
+_____________________________________________________________________________________________
+ADD_MONTHS
+CURRENT_DATE
+CURRENT_TIMESTAMP
+DBTIMEZONE
+EXTRACT
+LAST_DAY
+LOCALTIMESTAMP
+MONTHS_BETWEEN
+NEW_TIME
+NEXT_DAY
+ROUND (dates)
+SESSIONTIMEZONE
+SYSDATE
+SYSTIMESTAMP
+TRUNC (dates)
+TZ_OFFSET
+_____________________________________________________________________________________________
+Conversion Functions
+_____________________________________________________________________________________________
+BIN_TO_NUM
+CAST
+CHARTOROWID
+FROM_TZ
+HEXTORAW
+NUMTODSINTERVAL
+NUMTOYMINTERVAL
+RAWTOHEX
+TO_CHAR
+TO_CLOB
+TO_DATE
+TO_DSINTERVAL
+TO_LOB
+TO_MULTI_BYTE
+TO_NCLOB
+TO_NUMBER
+TO_SINGLE_BYTE
+TO_TIMESTAMP
+TO_TIMESTAMP_TZ
+TO_YMINTERVAL
+_____________________________________________________________________________________________
+Analytic Functions
+_____________________________________________________________________________________________
+CORR
+COVAR_POP
+COVAR_SAMP
+CUME_DIST
+DENSE_RANK
+FIRST_VALUE
+LAG
+LAST_VALUE
+LEAD
+LISTAGG
+NTH_VALUE
+RANK
+STDDEV
+VAR_POP
+VAR_SAMP
+VARIANCE
+_____________________________________________________________________________________________
+Advanced Functions
+_____________________________________________________________________________________________
+BFILENAME
+CARDINALITY
+CASE
+COALESCE
+DECODE
+EMPTY_BLOB
+EMPTY_CLOB
+GROUP_ID
+LNNVL
+NANVL
+NULLIF
+NVL
+NVL2
+SYS_CONTEXT
+UID
+USER
+USERENV
+_____________________________________________________________________________________________
+Miscellaneous Functions
+_____________________________________________________________________________________________
+SQLCODE
+SQLERRM
+Retrieve user ID from the current Oracle session
+Retrieve the session ID for the user logged in
+
+_____________________________________________________________________________________________
+MATH Functions
+_____________________________________________________________________________________________
+
+Function	Description
+ABS	The Oracle/PLSQL function of ABS returns the absolute value of the number.
+ACOS	The Oracle/PLSQL function ACOS returns the number arcosine.
+ASIN	The Oracle/PLSQL function ASIN returns the number’s arxynus.
+ATAN	The Oracle/PLSQL function ATAN returns the arctangance of a number.
+ATAN2	Oracle/PLSQL function ATAN2 returns the arctangance n and m.
+AVG	The Oracle/PLSQL function AVG returns the average value of the expression.
+BITAND	The Oracle/PLSQL function BITAND returns an integer number representing the bitwise operation AND over the bits expr1 and expr2.
+CEIL	The Oracle/PLSQL function CEIL returns the smallest integer number that is greater than or equal to number.
+COS	The Oracle/PLSQL function COS returns a cosine number.
+BITAND	The Oracle/PLSQL function BITAND returns an integer number representing the bitwise operation AND over the bits expr1 and expr2.
+CEIL	The Oracle/PLSQL function CEIL returns the smallest integer number that is greater than or equal to number.
+COS	The Oracle/PLSQL function COS returns a cosine number.
+COSH	The Oracle/PLSQL function COSH returns a hyperbolic cosine number.
+COUNT	The Oracle/PLSQL function COUNT returns the number of rows returned by the query.
+EXP	Oracle/PLSQL function EXP returns e elevated to n-th degree where e = 2.71828183.
+FLOOR	The Oracle/PLSQL function FLOOR returns the largest integer value equal to or less than a number.
+GREATEST	Oracle/PLSQL function GREATEST returns the highest value in the list of expressions.
+LEAST	Oracle/PLSQL function LEAST returns the smallest value in the expression list.
+LN	The Oracle/PLSQL function LN returns the natural logarithm of a number.
+LOG	The Oracle/PLSQL LOG function returns the logarithm n at the base m.
+MAX	The Oracle/PLSQL function MAX returns the maximum value of the expression.
+MEDIAN	The Oracle/PLSQL function MEDIAN returns the expression median.
+MIN	Oracle/PLSQL The MIN function returns the minimum value of the expression.
+MOD	Oracle/PLSQL function MOD returns the residue from division m by n.
+POWER	The Oracle/PLSQL function POWER elevates m to degree n.
+REGEXP_COUNT	Function Oracle/PLSQL REGEXP_COUNT calculates the number of occurrences of the template in the string. This function, introduced in Oracle 11g, allows you to count the number of times a substring occurs in a string using a regular expression pattern matching.
+REMAINDER	Oracle/PLSQL function REMAINDER returns the residue from division m by n.
+ROUND (FOR NUMBERS)	The Oracle/PLSQL function ROUND returns a number rounded to a certain number of digits after the decimal point.
+SIGN	The Oracle/PLSQL function SIGN returns a value that defines a number sign.
+SIN	The Oracle/PLSQL function SIN returns the sinus number.
+SINH	The Oracle/PLSQL function SINH returns the hyperbolic sinus number.
+SQRT	The Oracle/PLSQL SQRT function extracts the square root from the number.
+SUM	The Oracle/PLSQL function SUM returns the total value of the expression.
+TAN	The Oracle/PLSQL function TAN returns the number tangent.
+TANH	The Oracle/PLSQL function TANH returns the hyperbolic tangent of a number.
+TRUNC (FOR NUMBERS)	The Oracle/PLSQL function TRUNC returns a number truncated to a certain number of digits after the decimal point.
