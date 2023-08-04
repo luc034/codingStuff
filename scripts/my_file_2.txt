@@ -1,3 +1,1 @@
 “Learn latest tips about Linux”
-“Next is new operators”
-
