@@ -6,18 +6,19 @@
 Help()
 {
    # Display Help
-   echo "Will copy or remove files depending on input. below are options for what you would like to do"
+   echo "Will remove files depending on input. below are options for what you would like to do"
    echo
    echo "Syntax: scriptTemplate [-g|h|v|V]"
    echo "options:"
    echo "h     Print this Help."
-   echo "c     Copy plus option."
-   echo "p     copys preserving timestamp and ownership"
-   echo "r     remove plus option"
-   echo "s     recursively remove plus all contents"
-   echo "n     first directory"
-   echo "o     new directory for moving to"
+   echo "f     sets the filename"
+   echo "d     sets directory"
+   echo "o     will add one of the rm options to the remove, "
+   echo "      below are what each input for -o is and what they will do "
    echo
+   echo "i     will ask before deleting each file."
+   echo "r     will recursively delete a directory and all its contents"
+   echo "f     will forcibly delete files without asking"
 }
 
 ############################################################
@@ -31,23 +32,17 @@ Help()
 # Process the input options. Add options as needed.        #
 ############################################################
 # Get the options
-while getopts ":h:n:o:c:p:r:s:" option; do
+while getopts ":h:d:f:o:" option; do
    case $option in
       h) # display Help
          Help
          exit;;
-	  c) # Copy plus option
-	     action="cp "$OPTARG;;
-	  p) # copys preserving timestamp and ownership
-	     action="cp -p";;
-	  r) # remove plus option
-	     action="rm "$OPTARG;;
-	  s) # recursively remove plus all contents
-	     action="rm -r";;
-	  n) # first directory
-	     old_directory=${OPTARG};;
+	  d) # directory
+	     rdirectory=${OPTARG};;
+      f) # recursively remove plus all contents
+	     rfilename=$OPTARG;;
 	  o) # new directory for moving to
-	     new_directory=${OPTARG};;
+	     roptions=-${OPTARG};;
      \?) # Invalid option
          echo "Error: Invalid option"
          exit;;
@@ -55,25 +50,28 @@ while getopts ":h:n:o:c:p:r:s:" option; do
 done
 echo "The arguments passed in are : $@"
 echo "The number of arguments passed in are : $#"
-echo "old_directory : $old_directory"
-echo "new_directory : $new_directory"
-echo "action : $action"
-echo "call : $action $old_directory $new_directory"
+echo "file : $rfilename"
+echo "directory : $rdirectory"
+echo "option : $roptions"
+echo "call : $roptions $rdirectory $rfilename"
+
 
 if [[ -z $1 ]];
 then 
     echo "No parameter passed."
-#elif [[ -z $new_directory]]
-#$action $old_directory
+exit
 fi
 
-if [[ $action == *"rm"* ]]; 
+if [[ -z $roptions ]]; 
 then
-    echo "removing $new_directory $old_directory"
-   cd $old_directory; $action $new_directory;
+    echo "removing $rfilename $rdirectory with $roptions "
+    cd $rdirectory; rm $roptions $rfilename;
+    exit
 else
-    echo "copying $old_directory $new_directory"
-$action $old_directory $new_directory
+    echo "removing $rfilename $rdirectory"
+    cd $rdirectory; rm -f $rfilename;
+    exit
 fi
+
 exit
 
