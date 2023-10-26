@@ -3,6 +3,26 @@ import { a, b, c} from './help.js';
 
 // region 
 
+
+function hasRepeats (str) {
+  return /(.).*\1/.test(str);
+}
+
+function allCharactersSame(s)
+  {
+      let n = s.length;
+      for (let i = 1; i < n; i++)
+          if (s[i] != s[0])
+              return false;
+
+      return true;
+  }
+// region 
+
+apex.event.trigger( "#myRegionStaticID", "apexrefresh" );
+apex.region("myRegionStatidID").refresh();
+
+
 <label class="textarea">
   <input type="text" id="myCheck" onclick="myFunction()">
   <span class="slider round"></span>
@@ -405,3 +425,361 @@ function deleteRow(value){
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//How to input text in textarea in JavaScript?
+//How to Use textarea Input in JavaScript
+//To use the textarea input in JavaScript, you have to get the input values or set the input value to the textarea. For getting the textarea input, use the “getElementById('id')” method with the “value” attribute and for setting the input value, use the “getElementById('id'). value = 'text'”.
+
+
+//What is the input type of text area?
+//The <textarea> tag defines a multi-line text input control. The <textarea> element is often used in a form, to collect user inputs like comments or reviews. A text area can hold an unlimited number of characters, and the text renders in a fixed-width font (usually Courier).
+
+//How to set text area value in JavaScript?
+//Approach 1: Set Textarea Value in JavaScript Using the textContent Property
+//<textarea id= "text" name= "text" style= "border-width: medium;">This is HTML</textarea>
+//<button id= "btn" onclick= "settextValue()">Set Textarea Value</button>
+//<textarea id= "text" style= "border-width: medium;">Website</textarea>
+
+
+
+var cb$, checked, allRows$,
+    sel$ = $("#P1_SELECTED"),
+    event = this.browserEvent,
+    target$ = $(event.target),
+    th$ = target$.closest("th"),
+    tr$ = target$.closest("tr"),
+    va$ = $("#P1_VALUES");
+
+
+if (th$.length) {
+    
+    // the click was on the "select all"
+    // checkbox or checkbox cell
+    cb$ = th$.find("input");
+    if (cb$.length && cb$.val() === "all") {
+        checked = cb$[0].checked;
+        if (target$[0].nodeName !== 'INPUT') {
+            // only do this if the click was not on the checkbox
+            // because the checkbox will check itself
+            checked = cb$[0].checked = !checked;
+        }
+        if (sel$.val() === "") {
+            sel$.val(":");
+        }
+        if (sel$.val() !== "") {
+            sel$.val("");
+        }
+        $("#USERS_REGION").find("td input").each(function() {
+            this.checked = checked;
+            // give a visual style to the [un]selected row
+            $(this).closest("tr").toggleClass("selected", checked);
+            // update the hidden selected item
+            sel$.val(sel$.val().replace(":" + this.value + ":", ":"));
+            
+            if (checked) {
+                if (sel$.val() === "") {
+                    sel$.val(":");
+                }
+                //if (sel$.val() === "||") {
+                 //   sel$.val("|");
+                //}
+                // sets each value
+               sel$.val(sel$.val() + this.value + ":");
+            } 
+        });
+         
+    }
+} else if (tr$.length) {
+    
+    // the click was on some other data row
+    cb$ = tr$.find("td").first().find("input");
+    checked = cb$[0].checked;
+    if (target$[0].nodeName !== 'INPUT') {
+        // only do this if the click was not on the checkbox but in the column
+        // because the checkbox will check itself
+        checked = cb$[0].checked = !checked;
+    }
+    // give a visual style to the [un]selected row
+    tr$.toggleClass("selected", checked);
+    // update the hidden selected item
+    if (checked) {
+        if (sel$.val() === "") {
+            sel$.val(":");
+        }
+        sel$.val(sel$.val() + cb$.val() + ":");
+    } else {
+        sel$.val(sel$.val().replace(":" + cb$.val() + ":", ":"));
+        
+        // if just a '|' then clears variable
+        if (sel$.val() === ":") {
+            sel$.val("");
+        }
+    }
+  
+    // update the select all checkbox state
+    allRows$ = $("#USERS_REGION").find("td input");
+    checked = (allRows$.length === allRows$.filter(":checked").length);
+    $("#USERS_REGION").find("th input")[0].checked = checked;
+}
+
+
+var  checked, 
+    sel$ = $("#P1_SELECTED"),
+    va$ = $("#P1_VALUES");
+
+
+        checked = true;
+        if (sel$.val() === "") {
+            sel$.val(":");
+        }
+        if (sel$.val() !== "") {
+            sel$.val("");
+        }
+        $("#USERS_REGION").find("td input").each(function() {
+            this.checked = checked;
+            // give a visual style to the [un]selected row
+            $(this).closest("tr").toggleClass("selected", checked);
+            // update the hidden selected item
+            sel$.val(sel$.val().replace(":" + this.value + ":", ":"));
+            
+                if (sel$.val() === "") {
+                    sel$.val(":");
+                }
+               sel$.val(sel$.val() + this.value + ":");
+        });
+        $("#USERS_REGION").find("span input").each(function() {
+            this.checked = checked;
+            // give a visual style to the [un]selected row
+            $(this).closest("th").toggleClass("selected", checked);
+            });
+
+
+var checked,
+    allRows$ = $("#USERS_REGION").find("td input");
+allRows$.filter(":checked").closest("tr").addClass("selected");
+checked = (allRows$.length === allRows$.filter(":checked").length);
+$("#USERS_REGION").find("th input")[0].checked = checked;
+
+
+
+function disable_item ( itemName )  
+{ 
+   $('#'+itemName).addClass('apex_disabled').attr('tabindex','-1');    
+   $('#'+itemName+'_LABEL').addClass('apex_disabled').attr('tabindex','-1');
+}
+function enable_item ( itemName )  
+{ 
+   $('#'+itemName).removeClass('apex_disabled').removeAttr('tabindex');
+   $('#'+itemName+'_LABEL').removeClass('apex_disabled').removeAttr('tabindex');    
+}
+
+working 
+apex.item("P1_USERS_LIST_3").disable(); // works to disable
+var sel$ = $("#P1_USERS_LIST_3");	// gets id
+sel$.val()				// gets id
+select$ = document.querySelectorAll(".checkbox_group"); // gets entire group
+select$[0].id // gets name of group
+for (let i = 0; i < 5; i++) { // element.id.length
+  var element$ = document.getElementById('P1_USERS_LIST_'+i); // gets each one
+    alert(element$.value); // prints each group id
+    //alert('P65_USERS_LIST_'+i);//element$.val());
+}
+
+// get all page items
+const myPageItems = [];
+allItems = apex.page.forEachPageItem;
+allItems( $( "#wwvFlowForm" ), function( el, name ) {
+        myPageItems.push(name);
+    }, true );
+
+
+
+    
+function fn_click_async()
+{
+    // Call Ajax process to execute some PL/SQL code
+    apex.server.process ('IS_WEEKEND'  //PL/SQL process name
+    ,null
+    ,{ dataType : 'json'
+    //, async : false
+    , success : function(pData)
+         {
+             //Store the PL/SQL result in a Page item
+             //apex.item("P1_DUE_DATE_WKD").setValue(pData.bool);
+             if (pData.bool){
+                alert('Attention: ' + pData.date + ' is a weekend or holiday');
+             }
+         }
+    }
+    ).done( function(pData)
+        {
+            //if (pData.bool){
+            //    alert('Attention: ' + pData.date + ' is a weekend or holiday');
+            //}
+            //win.close();
+    //closeUrl();
+    //setTimeout(closeUrl(),1000);
+    //setTimeout(()=>{win.close()},1000);
+   // if (confirm('Would you like to delete this email?')) {
+
+        // Delete it!
+
+        //apex.item('P1_DELETE_ID').setValue(value);
+        //$s('P1_DELETE_ID',value);
+        
+        //apex.event.trigger('#P1_DELETE_ID', 'Link_Call', '');
+        //apex.event.trigger('#P1_DELETE_ID', 'change', '');
+
+   // } else {
+
+        // Do nothing!
+
+    //}
+    
+        }
+
+    );
+}
+
+
+javascript:deleteRow(#COLUMN#);
+javascript:apex.confirm('Are you sure you want to click ok on this confirm message?','REQUEST_NAME');
+
+
+function deleteRow(value){
+
+    if (confirm('Would you like to make this record valid?')) {
+
+        // Delete it!
+
+        apex.item('P1_DELETE_ID').setValue(value);
+        //$s('P1_DELETE_ID',value);
+        
+        apex.event.trigger('#P1_DELETE_ID', 'Link_Call', '');
+
+    } else {
+
+        // Do nothing!
+
+    }
+
+}
+
+
+
+function refresh_async()
+{ 
+    // gets type: either initial or resend
+    var v_type = $("#P1_RUN_TYPE");
+    // Call Ajax process to execute some PL/SQL code
+    apex.server.process ('REFRESH_DATA'  //PL/SQL process name
+    ,null
+    ,{ dataType : 'json'
+    , success : function(pData)
+         {
+             // resets the value for each check box because the value gets wiped when it gets disabled
+             reset_checkbox(pData);
+             // disables the checkboxes cooresponding to the type.
+             disable_checkbox(pData);
+
+         } // end of lambda function main body
+    } // end of 3rd parameter lambda function main
+    // not used yet, for anything that needs to be changed after the function runs
+    ).done( function(pData)
+        {
+
+        } // end of done function
+
+    ); // end of apex.server.process 
+} // end of refresh_async
+
+
+function reset_checkbox(pData) {
+    // total number of groups 
+    var v_count = $("#P1_GROUP_COUNT");
+    // used for an array of all the group ID's
+    var dis_temp = new Array();
+    // a dilimeted list of group ID's
+    var v_dis = pData.v_list;
+    // splits the group ID's into an array from a dilimeted list 
+    dis_temp = v_dis.split(":");
+    // loops through each group ID and sets the value    
+    for (let i = 0; i < v_count.val(); i++) { 
+        // gets each checkbox item
+        var element$ = document.getElementById('P1_USERS_LIST_'+i); // gets each one
+        // enables each checkbox
+        apex.item('P1_USERS_LIST_'+i).enable();
+        // sets the checkbox value. list must be organized in same way (organized by username when created)
+        element$.value = dis_temp[i];
+        } // end of loop: for (let i = 0; i < v_count.val(); i++)
+}
+
+
+function disable_checkbox(pData) {
+    // total number of groups 
+    var v_count = $("#P1_GROUP_COUNT");
+    // used for an array of all the group ID's
+    var dis_temp = new Array();
+    // a dilimeted list of group ID's
+    var v_dis = pData.data;
+    // splits the group ID's into an array from a dilimeted list
+    dis_temp = v_dis.split(":");
+    // loops through each group ID and sets the value    
+    for (let i = 0; i < v_count.val(); i++) { // element.id.length
+        // gets each checkbox item
+        var element$ = document.getElementById('P1_USERS_LIST_'+i); // gets each one
+        for (let j = 0; j < dis_temp.length; j++) {
+            if(element$.value === dis_temp[j]) {
+            // unchecks any check box associated with disabled group ID
+            element$.checked = false;
+            // enables each checkbox
+            apex.item('P1_USERS_LIST_'+i).disable();
+            // exits loop when found
+            break;
+            } // end of if statement: if(element$.value === dis_temp[j])
+        } // end of loop: for (let j = 0; j < dis_temp.length; j++) 
+    } // end of loop: for (let i = 0; i < v_count.val(); i++)
+// used to check html to see page item values
+//var element = document.getElementById('P61_USERS_LIST');
+//var classes = element.className;
+//var inhtml = element.innerHTML;
+//alert(inhtml);
+}
+
+function check_uncheck(pData) {
+    // total number of groups 
+    var v_count = $("#P1_GROUP_COUNT");
+    // sets checked to true by default
+    var checked = true;    
+    // checks parameter if it says "unchecked" then sets checked to fasle
+    if(pData === "unchecked"){
+        checked = false;
+    } // end of if statement: if(pData === "unchecked")
+    // loops through each group ID and sets the value  
+    for (let i = 0; i < v_count.val(); i++) { // element.id.length
+        // gets each checkbox item
+        var element$ = document.getElementById('P61_USERS_LIST_'+i); // gets each one
+        // if the check box is not disabled then sets the objects checked field to the value of the checked variable 
+        if (element$.disabled == false){
+            // sets element.checked to the checked variable based on the parameter
+            element$.checked = checked;
+        } // end of if statement: if (element$.disabled == false)
+    } // end of loop: for (let i = 0; i < v_count.val(); i++)
+}
+
+
+
+
