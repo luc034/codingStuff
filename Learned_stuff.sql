@@ -477,6 +477,41 @@ SELECT TO_CHAR (
 
 -- cool procedures that are useful for stuff
 
+    -- gets fiscal year for henrico based off July can add prefix using FY_YY_YY but takes in punct so it can produce YY/YY as well if needed
+    FUNCTION get_fiscal_year (p_date     DATE,
+                                      p_prefix   VARCHAR2 DEFAULT NULL,
+                                      p_punct    VARCHAR2 DEFAULT '-')
+        RETURN VARCHAR2
+    IS
+        v_year        NUMBER := TO_CHAR (p_date, 'YY');
+        v_month       NUMBER := TO_CHAR (p_date, 'MM');
+        v_temp_year   NUMBER;
+        v_return      VARCHAR2 (1000);
+    BEGIN
+        v_temp_year := CASE 
+                           WHEN v_month < 7 THEN v_year - 1 
+                           WHEN v_month >= 7 THEN v_year + 1 
+                       END;
+
+        IF v_temp_year > v_year
+        THEN
+            v_return := v_year || p_punct || v_temp_year;
+        ELSE
+            v_return := v_temp_year || p_punct || v_year;
+        END IF;
+
+        IF p_prefix IS NOT NULL AND p_punct != '_'
+        THEN
+            RETURN p_prefix || ' ' || v_return;
+        ELSIF p_prefix IS NOT NULL AND p_punct = '_'
+        THEN
+            RETURN p_prefix || p_punct || v_return;
+        ELSE
+            RETURN v_return;
+        END IF;
+    END get_fiscal_year;
+
+
     FUNCTION what_is (p_var VARCHAR2)
         RETURN VARCHAR2
     IS
@@ -1851,7 +1886,59 @@ AS
 END comn_qry_pkg;
 /
 
+CREATE OR REPLACE FUNCTION column_formatter(p_str VARCHAR2)
+RETURN VARCHAR2
+IS
+str varchar2(1000) := p_str;
 
+num NUMBER;
+
+BEGIN
+
+str := REGEXP_REPLACE(str, CHR(10), '"' || ',' || CHR(10) || '"');
+num := LENGTH(str) - 3;
+str := '"' || substr(str,1,num);
+
+return str;
+END; 
+
+CREATE OR REPLACE FUNCTION qry_column_formatter(p_str VARCHAR2)
+RETURN VARCHAR2
+IS
+str varchar2(1000) := p_str;
+
+num NUMBER;
+
+BEGIN
+
+str := REGEXP_REPLACE(str, CHR(10), '"' || ',' || CHR(10) || '"');
+num := LENGTH(str) - 3;
+str := '"' || substr(str,1,num);
+
+return 'SELECT ' || CHR(10) || str || CHR(10) || 'FROM ';
+END; 
+
+
+-----
+DECLARE 
+str varchar2(1000) := '
+';
+
+num NUMBER;
+
+BEGIN
+
+--dbms_output.put_line(REGEXP_REPLACE(str, CHR(10), '"' || ',' || CHR(10) || '"'));
+str := REGEXP_REPLACE(str, CHR(10), '"' || ',' || CHR(10) || '"');
+num := LENGTH(str) - 3;
+str := '"' || substr(str,1,num);
+
+dbms_output.put_line(str);
+
+dbms_output.put_line( '');
+
+dbms_output.put_line( 'SELECT ' || CHR(10) || str || CHR(10) || 'FROM ');
+END; 
 --euler_constant NUMBER := 0.577215664901532860606512090082;
 --golden_ratio NUMBER := 1.618033988749894;
 
