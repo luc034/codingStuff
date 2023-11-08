@@ -62,11 +62,36 @@ SELECT *
 -- WHERE table_name LIKE 'TABLE_NAME'
 ;
 
+-- to move columns you can make them invisible to move the new one up as far as u want, make the ones you want after it invisible then make them visible again
+
+--ADD COLUMN
+
+--ALTER TABLE TABLE_NAME MODIFY(COLUMN_NAME INVISIBLE) /
+--ALTER TABLE TABLE_NAME MODIFY(COLUMN_NAME VISIBLE) /
+
+
 -- looks up columns for table
 SELECT column_name
   FROM all_tab_columns
 -- WHERE table_name = 'TABLE_NAME' AND COLUMN_ID = 1
  ; 
+
+  
+ select * from ALL_COL_PRIVS;
+ select * from SESSION_ROLES;
+ select * from USER_COL_PRIVS;
+ select * from ALL_ARGUMENTS;
+ select * from ALL_DEPENDENCIES;
+ select * from ALL_DIRECTORIES;
+ select * from ALL_ERRORS;
+ select * from ALL_IDENTIFIERS;
+ select * from all_objects;
+ select * from all_tab_columns;
+select * from  ALL_TABLES;
+select * from  all_views;
+select * from ALL_PROCEDURES;
+select * from ALL_JAVA_CLASSES;
+select * from ALL_TYPE_METHODS;
  
  -- how to display an error page and redirect in APEX
 BEGIN
