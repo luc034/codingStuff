@@ -76,7 +76,7 @@ SELECT column_name
 -- WHERE table_name = 'TABLE_NAME' AND COLUMN_ID = 1
  ; 
 
-  
+   -- searching built in tables like searching for views and tables
  select * from ALL_COL_PRIVS;
  select * from SESSION_ROLES;
  select * from USER_COL_PRIVS;
@@ -92,6 +92,17 @@ select * from  all_views;
 select * from ALL_PROCEDURES;
 select * from ALL_JAVA_CLASSES;
 select * from ALL_TYPE_METHODS;
+
+
+-- closing dblinks
+ALTER SESSION CLOSE DATABASE LINK link_name;
+
+BEGIN
+--SELECT * FROM table_name@dblink;
+commit;
+DBMS_SESSION.CLOSE_DATABASE_LINK('link_name');
+END;
+
  
  -- how to display an error page and redirect in APEX
 BEGIN
