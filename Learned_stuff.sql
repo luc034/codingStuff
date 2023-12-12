@@ -1,3 +1,142 @@
+-- annual leave calculator 
+DECLARE
+
+FUNCTION annual_leave_calc(last_pay_period DATE, -- last paycheck
+                           current_leave NUMBER, -- how much leave has accrued already
+                           week_to_calc NUMBER , -- how many pay periods to calculate
+                           annual_leave_accrual NUMBER DEFAULT 4, -- default 4 hrs annual accrued per paycheck
+                           pay_period NUMBER DEFAULT 14, -- default bi weekly pay periods
+                           col_1 NUMBER DEFAULT 8, -- first column default 1 day
+                           col_2 NUMBER DEFAULT 16, -- second column default 2 days
+                           col_3 NUMBER DEFAULT 24, -- third column default 3 days
+                           col_4 NUMBER DEFAULT 32, -- fourth column default 4 days
+                           col_5 NUMBER DEFAULT 40) -- fifth column default 5 days
+RETURN VARCHAR2
+IS
+-- max col_35 weeks ahead 
+-- if annual leave over 1000 then columns get unaligned.
+
+str varchar2(32000);
+-- set back to last pack check
+dt DATE := last_pay_period;
+-- set current
+num NUMBER := current_leave;
+-- set how many weeks
+len NUMBER := week_to_calc;
+
+num_weeks VARCHAR2(30);
+
+BEGIN
+str := '||       Date      ||   not off    || 1 days off || 2 days off  || 3 days off  || 4 days off  ||  5 days off || weeks ||' || chr(13) ||'|| ' 
+        || TO_CHAR(dt,'MM/DD/YYYY') || ' ||        ' || num || '       ||       ' ||  (num-col_1) || '        ||        ' ||  (num-col_2) || '        ||        ' 
+        ||  (num-col_3) || '        ||        ' ||  (num-col_4) || '        ||        ' ||  (num-col_5) || '        ||     0     ||';
+
+FOR i IN 1 .. len LOOP
+num_weeks := CASE WHEN i < 10 THEN '  '||i||'     ||'
+ELSE ' '||i||'    ||'
+END;
+
+num := num + annual_leave_accrual;
+dt := dt + pay_period;
+IF num < 100
+THEN
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||        ' || num || '       ||       ' ||  (num-col_1) || '        ||        ' ||  (num-col_2) || '        ||        ' ||  (num-col_3) || '        ||        ' ||  (num-col_4) || '        ||        ' ||  (num-col_5) || '        ||   ' || num_weeks;
+ELSIF (num-col_1) < 100
+THEN
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||       ' || num || '      ||       ' ||  (num-col_1) || '        ||        ' ||  (num-col_2) || '        ||        ' ||  (num-col_3) || '        ||        ' ||  (num-col_4) || '        ||        ' ||  (num-col_5) || '        ||   ' ||num_weeks;
+ELSIF (num-col_2) < 100
+THEN
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||       ' || num || '      ||      ' ||  (num-col_1) || '       ||        ' ||  (num-col_2) || '        ||         ' ||  (num-col_3) || '       ||        ' ||  (num-col_4) || '        ||        ' ||  (num-col_5) || '        ||   ' ||num_weeks;
+ELSIF (num-col_3) < 100
+THEN
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||       ' || num || '      ||      ' ||  (num-col_1) || '       ||       ' ||  (num-col_2) || '       ||        ' ||  (num-col_3) || '        ||        ' ||  (num-col_4) || '        ||        ' ||  (num-col_5) || '        ||   ' ||num_weeks;
+ELSIF (num-col_4) < 100
+THEN
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||       ' || num || '      ||      ' ||  (num-col_1) || '       ||       ' ||  (num-col_2) || '       ||       ' ||  (num-col_3) || '       ||        ' ||  (num-col_4) || '        ||        ' ||  (num-col_5) || '        ||   ' ||num_weeks;
+ELSIF (num-col_5) < 100
+THEN
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||       ' || num || '      ||      ' ||  (num-col_1) || '       ||       ' ||  (num-col_2) || '       ||       ' ||  (num-col_3) || '       ||       ' ||  (num-col_4) || '       ||        ' ||  (num-col_5) || '        ||   ' ||num_weeks;
+ELSE
+str := str || chr(13) ||'|| '|| TO_CHAR(dt,'MM/DD/YYYY') || ' ||       ' || num || '      ||      ' ||  (num-col_1) || '       ||       ' ||  (num-col_2) || '       ||       ' ||  (num-col_3) || '       ||       ' ||  (num-col_4) || '       ||       ' ||  (num-col_5) || '       ||   ' ||num_weeks;
+END IF;
+
+END LOOP;
+-- to use when not using as a function
+--dbms_output.put_line(str);
+RETURN str;
+
+END annual_leave_calc; 
+
+BEGIN
+
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 30));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 0, 26));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 50));
+dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 60));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 70));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 100));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 200));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 240));
+--dbms_output.put_line( annual_leave_calc(sysdate -3, 72, 245));
+
+END;
+
+
+-- use this to redirect
+-- javascript:apex.confirm("Would you like to run #PK#?", {request:"SYNC",set:{"P102_JOB":"#PK#" , "P102_ACTION":"#JOB_ACTION#", "P102_OWNER":"#JOB_SCHEMA#", "P102_JOB_NAME":"#JOB_NAME#"}});
+-- cool play button icon
+-- <span aria-hidden="true" class="fa fa-play-circle"></span>
+BEGIN
+IF :REQUEST = 'SYNC'
+THEN
+-- to execute sceduled jobs or pkg methods
+apex_exec.execute_plsql(:P102_ACTION);
+
+--(or)
+
+dbms_scheduler.run_job (job_name => :P102_JOB);
+
+END IF;
+-- all_scheduler_jobs
+END;
+
+SELECT LAST_DDL_TIME, TIMESTAMP, OBJECT_TYPE, OBJECT_NAME
+FROM USER_OBJECTS
+WHERE OBJECT_NAME LIKE '%Process%'
+--WHERE OBJECT_TYPE = 'PROCEDURE'
+--AND OBJECT_NAME LIKE 'sync_process';
+;
+
+SELECT LAST_DDL_TIME, TIMESTAMP
+FROM DBA_OBJECTS
+WHERE OBJECT_TYPE = 'PROCEDURE'
+AND OBJECT_NAME LIKE '%process%'
+;
+
+-- close dblink
+--DBMS_SESSION.CLOSE_DATABASE_LINK('CAMCOMN');
+--ALTER SESSION CLOSE DATABASE LINK CAMCOMN;
+
+-- columns on one line
+declare
+str VARCHAR2(1000) := ''
+;
+BEGIN
+str := TRANSLATE (str, 'x'||CHR(10)||CHR(13), 'x'||',');
+str := REPLACE(str, ',',', ');
+dbms_output.put_line( str);
+END;
+
+declare
+str VARCHAR2(1000) := ''
+;
+BEGIN
+str := TRANSLATE (str, 'x'||CHR(10)||CHR(13), 'x'||',');
+str := REPLACE(str, ',',', '||CHR(13));
+dbms_output.put_line( str);
+END;
+
+
 -- spooling
 set pagesize 0
 set newpage none
@@ -103,7 +242,17 @@ commit;
 DBMS_SESSION.CLOSE_DATABASE_LINK('link_name');
 END;
 
- 
+ select extract( day from diff ) days,
+        extract( hour from diff ) hours,
+        extract( minute from diff ) minutes,
+        extract( second from diff ) seconds
+ from (select systimestamp - to_timestamp( '2023-07-23', 'yyyy-mm-dd' ) diff
+          from dual);
+          
+          
+          select systimestamp - to_timestamp( '2012-07-23', 'yyyy-mm-dd' ) from dual;
+          
+          
  -- how to display an error page and redirect in APEX
 BEGIN
                     APEX_APPLICATION.show_error_message (
