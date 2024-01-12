@@ -1,9 +1,9 @@
 -- annual leave calculator 
 DECLARE
 
-FUNCTION annual_leave_calc(last_pay_period DATE, -- last paycheck
-                           current_leave NUMBER, -- how much leave has accrued already
-                           week_to_calc NUMBER , -- how many pay periods to calculate
+FUNCTION annual_leave_calc(last_pay_period DATE DEFAULT SYSDATE, -- last paycheck
+                           current_leave NUMBER DEFAULT 0, -- how much leave has accrued already
+                           week_to_calc NUMBER DEFAULT 10, -- how many pay periods to calculate
                            annual_leave_accrual NUMBER DEFAULT 4, -- default 4 hrs annual accrued per paycheck
                            pay_period NUMBER DEFAULT 14, -- default bi weekly pay periods
                            col_1 NUMBER DEFAULT 8, -- first column default 1 day
@@ -114,8 +114,8 @@ AND OBJECT_NAME LIKE '%process%'
 ;
 
 -- close dblink
---DBMS_SESSION.CLOSE_DATABASE_LINK('CAMCOMN');
---ALTER SESSION CLOSE DATABASE LINK CAMCOMN;
+--DBMS_SESSION.CLOSE_DATABASE_LINK('LINK_NAME');
+--ALTER SESSION CLOSE DATABASE LINK LINK_NAME;
 
 -- columns on one line
 declare
@@ -231,6 +231,7 @@ select * from  all_views;
 select * from ALL_PROCEDURES;
 select * from ALL_JAVA_CLASSES;
 select * from ALL_TYPE_METHODS;
+select * from ALL_DB_LINKS;
 
 
 -- closing dblinks
@@ -2185,3 +2186,345 @@ IS
 BEGIN
 RETURN p_length * p_width;
 END;
+
+
+
+-- Big outer Join
+DECLARE
+            TYPE r_current_user IS RECORD
+            (
+                TABLE_NAME    VARCHAR2 (500)
+            );
+            TYPE v_current_user IS TABLE OF r_current_user;
+            BULK_COLLECTOR   v_current_user;
+            
+            where_stmt VARCHAR2(32000);
+            wtemp_stmt VARCHAR2(32000);
+            ttemp_stmt VARCHAR2(32000);
+            sel_frm_stmt VARCHAR2(32000) := 'SELECT * FROM ';
+        BEGIN
+            SELECT TABLE_NAME
+            BULK COLLECT INTO BULK_COLLECTOR
+            FROM ALL_TABLES
+            WHERE TABLE_NAME LIKE '%SECURITY%' AND LENGTH (TABLE_NAME) = 13;
+
+            FOR i IN 1 .. BULK_COLLECTOR.COUNT
+            LOOP
+                FOR j IN i .. BULK_COLLECTOR.COUNT
+                LOOP
+                
+                IF i != j
+                THEN
+                 -- BULK_COLLECTOR (indx).column_1
+                where_stmt := where_stmt || CHR(13) || 'AND ' || BULK_COLLECTOR (i).TABLE_NAME || '.USER_ID = ' || BULK_COLLECTOR (j).TABLE_NAME || '.USER_ID(+)';
+                END IF;
+                
+                END LOOP;
+            END LOOP;
+            dbms_output.put_line( where_stmt);
+        END;
+        
+        
+        
+        
+        DECLARE
+            TYPE r_current_user IS RECORD
+            (
+                TABLE_NAME    VARCHAR2 (500)
+            );
+            TYPE v_current_user IS TABLE OF r_current_user;
+            BULK_COLLECTOR   v_current_user;
+            
+            where_stmt VARCHAR2(32000);
+            temp_stmt VARCHAR2(32000);
+            sel_frm_stmt VARCHAR2(32000) := 'SELECT USER_ID FROM ';
+        BEGIN
+            SELECT TABLE_NAME
+            BULK COLLECT INTO BULK_COLLECTOR
+            FROM ALL_TABLES
+            WHERE TABLE_NAME LIKE '%SECURITY%' AND LENGTH (TABLE_NAME) = 13;
+
+            FOR i IN 1 .. BULK_COLLECTOR.COUNT
+            LOOP
+                temp_stmt := temp_stmt || CHR(13) || sel_frm_stmt || BULK_COLLECTOR (i).TABLE_NAME;
+                IF i < BULK_COLLECTOR.COUNT
+                THEN 
+                    temp_stmt := temp_stmt || CHR(13) || 'UNION';
+                END IF;
+            END LOOP;
+            dbms_output.put_line( temp_stmt);
+        END;
+
+
+
+
+DECLARE
+
+-- high protien intake in pounds
+FUNCTION protien_high_lbs (weight NUMBER) 
+RETURN VARCHAR2
+IS
+high_end NUMBER := .72;
+BEGIN
+RETURN high_end * weight;
+END protien_high_lbs;
+
+-- low protien intake in pounds
+FUNCTION protien_low_lbs (weight NUMBER) 
+RETURN VARCHAR2
+IS
+low_end NUMBER := .36;
+BEGIN
+RETURN low_end * weight;
+END protien_low_lbs;
+
+ -- Average BMR for Men is 1696 and women is 1409
+FUNCTION BMR (weight NUMBER, height NUMBER, age NUMBER, gender VARCHAR2) -- pounds, inches, years
+RETURN NUMBER
+IS
+return_statement VARCHAR2(300);
+calculations NUMBER;
+BEGIN
+IF gender = 'Male' 
+THEN
+calculations := 65 + (6.2 * weight) + (12.7 * height) - (6.8 * age);
+ELSIF gender = 'Female'
+THEN
+calculations := 655 + (4.3 * weight) + (4.3 * height) - (4.7 * age);
+END IF;
+RETURN calculations;
+END BMR;
+
+-- BMR calculator in US measurements -- Average BMR for Men is 1696 and women is 1409
+FUNCTION BMR_US (weight NUMBER, height NUMBER, age NUMBER, gender VARCHAR2) -- pounds, inches, years
+RETURN NUMBER
+IS
+calculations NUMBER;
+BEGIN
+IF gender = 'Male' 
+THEN
+calculations := 66.47 + (6.24 * weight) + (12.7 * height) - (6.75 * age);
+ELSIF gender = 'Female'
+THEN
+calculations := 65.51 + (4.35 * weight) + (4.7 * height) - (4.7 * age);
+END IF;
+RETURN calculations;
+END BMR_US;
+
+-- BMR calculator in Metric measurements -- Average BMR for Men is 1696 and women is 1409
+FUNCTION BMR_METRIC (weight NUMBER, height NUMBER, age NUMBER, gender VARCHAR2) -- KG, CM, YR (kilograms, centimeters, years)
+RETURN NUMBER
+IS
+calculations NUMBER;
+BEGIN
+IF gender = 'Male' 
+THEN
+calculations := 66.5 + (13.75 * weight) + (5.003 * height) - (6.75 * age);
+ELSIF gender = 'Female'
+THEN
+calculations := 65.51 + (9.563 * weight) + (1.850 * height) - (4.676 * age); -- online said 655.1 but was way off from US equation must be typo
+END IF;
+RETURN calculations;
+END BMR_METRIC;
+
+-- Sedentary, Light, Moderate, Very, Extra
+FUNCTION activity_calculator (active_amount VARCHAR2) -- Sedentary, Light, Moderate, Very, Extra
+RETURN NUMBER
+IS
+calculations NUMBER;
+BEGIN
+IF active_amount = 'Sedentary' or active_amount = 'Little' OR active_amount = 'None'
+THEN
+calculations := 1.2;
+ELSIF active_amount = 'Light' OR active_amount = 'Lightly Active'
+THEN
+calculations := 1.375;
+ELSIF active_amount = 'Moderate' OR active_amount = 'Moderately Active'
+THEN
+calculations := 1.55;
+ELSIF active_amount = 'Very' OR active_amount = 'Heavy' OR active_amount = 'Hard' OR active_amount = 'Very Active'
+THEN
+calculations := 1.725;
+ELSIF active_amount = 'Extra' OR active_amount = 'Very Hard' OR active_amount = 'Heavily' OR active_amount = 'Extra Active'
+THEN
+calculations := 1.9;
+END IF;
+RETURN calculations;
+END activity_calculator;
+
+FUNCTION calorie_calculator_metric (weight NUMBER, height NUMBER, age NUMBER, gender VARCHAR2, active_amount VARCHAR2) -- pounds, inches, years
+RETURN NUMBER
+IS
+calculations NUMBER;
+BEGIN
+RETURN BMR_METRIC(weight, height, age, gender) * activity_calculator(active_amount);
+END calorie_calculator_metric;
+
+FUNCTION calorie_calculator_us (weight NUMBER, height NUMBER, age NUMBER, gender VARCHAR2, active_amount VARCHAR2) -- KG, CM, YR (kilograms, centimeters, years)
+RETURN NUMBER
+IS
+BEGIN
+RETURN BMR_US(weight, height, age, gender) * activity_calculator(active_amount);
+END calorie_calculator_us;
+
+FUNCTION calorie_calculator_avg (weight_kg NUMBER, weight_lbs NUMBER, height_cm NUMBER, height_in NUMBER, age NUMBER, gender VARCHAR2, active_amount VARCHAR2) -- KG, CM, YR (kilograms, centimeters, years)
+RETURN NUMBER
+IS
+us_conv NUMBER := BMR_US(weight_lbs, height_in, age, gender) * activity_calculator(active_amount);
+met_conv NUMBER := BMR_METRIC(weight_kg, height_cm, age, gender) * activity_calculator(active_amount);
+calc NUMBER := us_conv + met_conv;
+BEGIN
+
+RETURN (calc / 2);
+END calorie_calculator_avg;
+
+FUNCTION fat_burn_pounds (calories NUMBER, p_days NUMBER)
+RETURN NUMBER
+IS 
+BEGIN
+RETURN (calories * p_days) / 3500;
+
+END fat_burn_pounds;
+
+-- days and calories are interchangeable days = (pounds * 3500) / calories is equal to calories = (pounds * 3500) / days 
+-- put in how many lbs to lose and how many days and it will say how many calories must be burned per day. if you take the calries / 100 it will give how many miles to run per day
+FUNCTION fat_burn_days (pounds NUMBER, calories NUMBER)
+RETURN NUMBER
+IS 
+BEGIN
+RETURN (pounds * 3500) / calories;
+
+END fat_burn_days;
+
+-- driver for protien
+FUNCTION protien_per_day (weight NUMBER) 
+RETURN VARCHAR2
+IS
+low_end NUMBER := .36;
+high_end NUMBER := .72;
+BEGIN
+RETURN 'Between ' || protien_low_lbs(weight) || 'g to ' || protien_high_lbs(weight) || 'g a day for ' || weight || 'lbs';
+END protien_per_day;
+
+BEGIN 
+-- 1 lbs of body fat is 3500 calories
+-- running or walking a mile should burn 100 calories
+-- try to hit a deficit of 500 calories per day to burn 1 lbs of fat a week (3500 - (500 * 7))
+-- 250 less calories eating and run 2.5 miles
+
+-- Ways to inrease BMR 
+-- 1) Eat more protien in every meal
+-- 2) Doing more HIIT (High Intensity Interval Training) workouts
+-- 3) Increasing your daily activity - choose stairs over the elevator, walk more, switch to standing desk.
+-- 4) Eating more spicy foods
+-- 5) Doing more resistance workouts - muscles burn more calories than fat tissue
+
+dbms_output.put_line( 'Protien per day: ' || protien_per_day(250));
+
+dbms_output.put_line( 'Male BMR US = ' || BMR_US(250, 72, 34, 'Male'));
+dbms_output.put_line( 'Male BMR Metric = ' || BMR_METRIC(113.398, 182.88, 34, 'Male'));
+
+dbms_output.put_line( 'Female BMR US = ' || BMR_US(120, 64, 34, 'Female'));
+dbms_output.put_line( 'Female BMR Metric = ' ||BMR_METRIC(54.4311, 162.56, 34, 'Female'));
+
+dbms_output.put_line( protien_per_day(250) || ' BMR is ' || BMR(250, 72, 34, 'Male') || ' for Male 6ft age 34');
+
+
+--dbms_output.put_line( 'Female BMR US = ' || BMR_US(108, 64, 34, 'Female')); -- avg female that is 5'4 is between 108 - 132
+--dbms_output.put_line( 'Female BMR Metric = ' ||BMR_METRIC(48.988, 162.56, 34, 'Female'));
+dbms_output.put_line( '');
+dbms_output.put_line( 'Sedentary');
+-- calorie_calculator
+-- Sedentary, Light, Moderate, Very, Extra
+--dbms_output.put_line( 'Male calroies US = ' || calorie_calculator_US(250, 72, 34, 'Male', 'Sedentary'));
+--dbms_output.put_line( 'Male calories Metric = ' || calorie_calculator_METRIC(113.398, 182.88, 34, 'Male', 'Sedentary'));
+dbms_output.put_line( 'Male calories average = ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Sedentary'));
+
+--dbms_output.put_line( 'Female calories US = ' || calorie_calculator_US(120, 64, 34, 'Female', 'Sedentary'));
+--dbms_output.put_line( 'Female calories Metric = ' ||calorie_calculator_METRIC(54.4311, 162.56, 34, 'Female', 'Sedentary'));
+dbms_output.put_line( 'Female calories average = ' || calorie_calculator_avg(54.4311,120, 162.56,64, 34, 'Female', 'Sedentary'));
+
+dbms_output.put_line( '');
+dbms_output.put_line( 'Light');
+-- Sedentary, Light, Moderate, Very, Extra
+--dbms_output.put_line( 'Male calroies US = ' || calorie_calculator_US(250, 72, 34, 'Male', 'Light'));
+--dbms_output.put_line( 'Male calories Metric = ' || calorie_calculator_METRIC(113.398, 182.88, 34, 'Male', 'Light'));
+dbms_output.put_line( 'Male calories average = ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Light'));
+--
+--dbms_output.put_line( 'Female calories US = ' || calorie_calculator_US(120, 64, 34, 'Female', 'Light'));
+--dbms_output.put_line( 'Female calories Metric = ' ||calorie_calculator_METRIC(54.4311, 162.56, 34, 'Female', 'Light'));
+dbms_output.put_line( 'Female calories average = ' || calorie_calculator_avg(54.4311,120, 162.56,64, 34, 'Female', 'Light'));
+
+dbms_output.put_line( '');
+dbms_output.put_line( 'Moderate');
+---- Sedentary, Light, Moderate, Very, Extra
+--dbms_output.put_line( 'Male calroies US = ' || calorie_calculator_US(250, 72, 34, 'Male', 'Moderate'));
+--dbms_output.put_line( 'Male calories Metric = ' || calorie_calculator_METRIC(113.398, 182.88, 34, 'Male', 'Moderate'));
+dbms_output.put_line( 'Male calories average = ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Moderate'));
+
+--dbms_output.put_line( 'Female calories US = ' || calorie_calculator_US(120, 64, 34, 'Female', 'Moderate'));
+--dbms_output.put_line( 'Female calories Metric = ' ||calorie_calculator_METRIC(54.4311, 162.56, 34, 'Female', 'Moderate'));
+dbms_output.put_line( 'Female calories average = ' || calorie_calculator_avg(54.4311,120, 162.56,64, 34, 'Female', 'Moderate'));
+
+dbms_output.put_line( '');
+dbms_output.put_line( 'Very');
+-- Sedentary, Light, Moderate, Very, Extra
+--dbms_output.put_line( 'Male calroies US = ' || calorie_calculator_US(250, 72, 34, 'Male', 'Very'));
+--dbms_output.put_line( 'Male calories Metric = ' || calorie_calculator_METRIC(113.398, 182.88, 34, 'Male', 'Very'));
+dbms_output.put_line( 'Male calories average = ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Very'));
+
+--dbms_output.put_line( 'Female calories US = ' || calorie_calculator_US(120, 64, 34, 'Female', 'Very'));
+--dbms_output.put_line( 'Female calories Metric = ' ||calorie_calculator_METRIC(54.4311, 162.56, 34, 'Female', 'Very'));
+dbms_output.put_line( 'Female calories average = ' || calorie_calculator_avg(54.4311,120, 162.56,64, 34, 'Female', 'Very'));
+
+dbms_output.put_line( '');
+dbms_output.put_line( 'Extra');
+-- Sedentary, Light, Moderate, Very, Extra
+--dbms_output.put_line( 'Male calroies US = ' || calorie_calculator_US(250, 72, 34, 'Male', 'Extra'));
+--dbms_output.put_line( 'Male calories Metric = ' || calorie_calculator_METRIC(113.398, 182.88, 34, 'Male', 'Extra'));
+dbms_output.put_line( 'Male calories average = ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Extra'));
+
+--dbms_output.put_line( 'Female calories US = ' || calorie_calculator_US(120, 64, 34, 'Female', 'Extra'));
+--dbms_output.put_line( 'Female calories Metric = ' ||calorie_calculator_METRIC(54.4311, 162.56, 34, 'Female', 'Extra'));
+dbms_output.put_line( 'Female calories average = ' || calorie_calculator_avg(54.4311,120, 162.56,64, 34, 'Female', 'Extra'));
+--dbms_output.put_line( 'Female BMR = ' || BMR(108, 64, 34, 'Female')); -- with 655.1 calc
+--dbms_output.put_line( 'Female BMR = ' || BMR(250, 72, 34, 'Female')); -- male with female 655.1 calc
+
+dbms_output.put_line( '');
+dbms_output.put_line( '');
+dbms_output.put_line( 'My protien per day: ' || protien_per_day(250));
+dbms_output.put_line( 'My BMR is ' || BMR(250, 72, 34, 'Male') || ' for Male 6ft age 34');
+dbms_output.put_line( 'My daily Calories are between ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Sedentary') || ' and ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Moderate'));
+dbms_output.put_line( 'So Avg ' || calorie_calculator_avg(113.398, 250, 182.88, 72, 34, 'Male', 'Light'));
+
+
+--dbms_output.put_line( protien_per_day(260) || ' BMR is ' || BMR(260, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(250) || ' BMR is ' || BMR(250, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(240) || ' BMR is ' || BMR(240, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(230) || ' BMR is ' || BMR(230, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(220) || ' BMR is ' || BMR(220, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(210) || ' BMR is ' || BMR(210, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(200) || ' BMR is ' || BMR(200, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(190) || ' BMR is ' || BMR(190, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(180) || ' BMR is ' || BMR(180, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(170) || ' BMR is ' || BMR(170, 72, 34, 'Male') || ' for Male 6ft age 34');
+--dbms_output.put_line( protien_per_day(160) || ' BMR is ' || BMR(160, 72, 34, 'Male') || ' for Male 6ft age 34');
+
+--dbms_output.put_line( fat_burn_days(20,30));
+END;
+
+
+-- EDIT_DISTANCE Function Calculates the number of changes required to transform string-1 into string-2
+-- EDIT_DISTANCE_SIMILARITY Function Calculates the number of changes required to transform string-1 into string-2, returning a value between 0 (no match) and 100 (perfect match)
+-- JARO_WINKLER Function Calculates the measure of agreement between string-1 and string-2
+--JARO_WINKLER_SIMILARITY Function Calculates the measure of agreement between string-1 and string-2, returning a value between 0 (no match) and 100 (perfect match)
+--dbms_output.put_line(REGEXP_SUBSTR(str,'[^_]+$'));
+--dbms_output.put_line(UTL_MATCH.JARO_WINKLER_SIMILARITY('dog','cat'));
+
+SELECT UTL_MATCH.JARO_WINKLER_SIMILARITY('shackleford', 'shackelford') FROM DUAL;
+
+
+select *  
+from all_source
+     , ALL_DB_LINKS
+where text like '%'|| DB_LINK ||'%';
